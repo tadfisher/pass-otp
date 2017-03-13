@@ -45,6 +45,9 @@ otp_insert() {
 
 	[[ $force -eq 0 && -e $passfile ]] && yesno "An entry already exists for $path. Overwrite it?"
 
+	local passfile="$PREFIX/$path.gpg"
+	set_git "$passfile"
+
 	mkdir -p -v "$PREFIX/$(dirname "$path")"
 	set_gpg_recipients "$(dirname "$path")"
 
