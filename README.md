@@ -57,7 +57,7 @@ $ pass otp show totp-secret
 
 ## Installation
 
-````
+```
 git clone https://github.com/tadfisher/pass-otp
 cd pass-otp
 sudo make install
