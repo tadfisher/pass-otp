@@ -32,7 +32,7 @@ otp_increment_counter() {
 
 	git_add_file "$passfile" "Update HOTP counter value for $path."
 
-	eval $ret="'$inc'"
+	eval "$ret='$inc'"
 }
 
 otp_insert() {
@@ -56,7 +56,7 @@ otp_insert() {
 }
 
 otp_insert_totp() {
-	local opts secret="" algorithm="sha1" period=30 digits=6 force=0
+	local opts contents secret="" algorithm="sha1" period=30 digits=6 force=0
 	opts="$($GETOPT -o s:a:p:d:f -l secret:,algorithm:,period:,digits:,force -n "$PROGRAM" -- "$@")"
 	local err=$?
 	eval set -- "$opts"
@@ -85,7 +85,7 @@ otp_insert_totp() {
 		read -r -p "Enter secret (base32-encoded): " -s secret || exit 1
 	fi
 
-	local contents=$(cat <<-_EOF
+  contents=$(cat <<-_EOF
 	otp_secret: $secret
 	otp_type: totp
 	otp_algorithm: $algorithm
@@ -98,7 +98,7 @@ otp_insert_totp() {
 }
 
 otp_insert_hotp() {
-	local opts secret="" digits=6 force=0
+	local opts contents secret="" digits=6 force=0
 	opts="$($GETOPT -o s:d:f -l secret:,digits:,force -n "$PROGRAM" -- "$@")"
 	local err=$?
 	eval set -- "$opts"
@@ -124,7 +124,7 @@ otp_insert_hotp() {
 	local counter="$2"
 	[[ $counter =~ ^[0-9]+$ ]] || die "Invalid counter '$counter'. Must be a positive number"
 
-	local contents=$(cat <<-_EOF
+  contents=$(cat <<-_EOF
 	otp_secret: $secret
 	otp_type: hotp
 	otp_counter: $counter
@@ -169,7 +169,7 @@ cmd_otp_insert() {
 }
 
 cmd_otp_show() {
-	local clip=0
+  local opts contents clip=0 secret="" type="" algorithm="" counter="" period=30 digits=6
 	opts="$($GETOPT -o c -l clip -n "$PROGRAM" -- "$@")"
 	local err=$?
 	eval set -- "$opts"
@@ -185,9 +185,7 @@ cmd_otp_show() {
 	check_sneaky_paths "$path"
 	[[ ! -f $passfile ]] && die "Passfile not found"
 
-	local secret="" type="" algorithm="" counter="" period=30 digits=6
-
-	local contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
+	contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
 	while read -r -a line; do case ${line[0]} in
 		otp_secret:) secret=${line[1]} ;;
 		otp_type:) type=${line[1]} ;;
@@ -205,10 +203,10 @@ cmd_otp_show() {
 
 	local out
 	case $type in
-		totp)	out="$($OATH -b --totp=$algorithm --time-step-size="$period"s --digits=$digits $secret)" ;;
-		hotp)	otp_increment_counter counter $counter "$contents" "$path" "$passfile" > /dev/null
-			[[ $? -ne 0 ]] && die "Failed to increment HOTP counter for $passfile"
-			out="$($OATH -b --hotp --counter=$counter --digits=$digits $secret)"
+		totp)	out=$($OATH -b --totp="$algorithm" --time-step-size="$period"s --digits="$digits" "$secret") ;;
+		hotp)	otp_increment_counter counter "$counter" "$contents" "$path" "$passfile" > /dev/null \
+        || die "Failed to increment HOTP counter for $passfile"
+			out=$($OATH -b --hotp --counter="$counter" --digits="$digits" "$secret")
 			;;
 		*) die "Invalid OTP type '$type'. May be one of 'totp' or 'hotp'" ;;
 	esac
@@ -221,7 +219,7 @@ cmd_otp_show() {
 }
 
 cmd_otp_uri() {
-	local qrcode=0 clip=0
+	local contents qrcode=0 clip=0
 	opts="$($GETOPT -o q -l qrcode -n "$PROGRAM" -- "$@")"
 	local err=$?
 	eval set -- "$opts"
@@ -240,7 +238,7 @@ cmd_otp_uri() {
 
 	local secret="" type="" algorithm="" counter="" period=30 digits=6
 
-	local contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
+	contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
 	while read -r -a line; do case ${line[0]} in
 		otp_secret:) secret=${line[1]} ;;
 		otp_type:) type=${line[1]} ;;
