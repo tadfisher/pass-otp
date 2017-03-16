@@ -25,11 +25,12 @@ unset EDITOR
 
 # We must be called from test/
 TEST_HOME="$(pwd)"
+EXT_HOME="$(dirname $TEST_HOME)"
 
 . ./sharness.sh
 
 export PASSWORD_STORE_ENABLE_EXTENSIONS=true
-export PASSWORD_STORE_EXTENSIONS_DIR="../"
+export PASSWORD_STORE_EXTENSIONS_DIR="$EXT_HOME"
 
 export PASSWORD_STORE_DIR="$SHARNESS_TRASH_DIRECTORY/test-store"
 rm -rf "$PASSWORD_STORE_DIR"
