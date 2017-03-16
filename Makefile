@@ -16,7 +16,7 @@ all:
 install:
 	@install -v -d "$(DESTDIR)$(MANDIR)/man1" && install -m 0644 -v pass-$(PROG).1 "$(DESTDIR)$(MANDIR)/man1/pass-$(PROG).1"
 	@install -v -d "$(DESTDIR)$(SYSTEM_EXTENSION_DIR)/"
-	@install -Dm0755 $(PROG).bash "$(DESTDIR)$(SYSTEM_EXTENSION_DIR)/$(PROG).bash"
+	@install -v -m0755 $(PROG).bash "$(DESTDIR)$(SYSTEM_EXTENSION_DIR)/$(PROG).bash"
 	@echo
 	@echo "pass-$(PROG) is installed succesfully"
 	@echo
@@ -24,8 +24,7 @@ install:
 uninstall:
 	@rm -vrf \
 		"$(DESTDIR)$(SYSTEM_EXTENSION_DIR)/$(PROG).bash" \
-		"$(DESTDIR)$(IMPORTERS_DIR)/" \
-		"$(DESTDIR)$(MANDIR)/man1/pass-$(PROG).1" \
+		"$(DESTDIR)$(MANDIR)/man1/pass-$(PROG).1"
 
 test:
 	make -C tests
