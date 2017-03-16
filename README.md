@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/tadfisher/pass-otp.svg?branch=master)](https://travis-ci.org/tadfisher/pass-otp)
+
 # pass-otp
 
 A [pass](https://www.passwordstore.org/) extension for managing
