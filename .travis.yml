@@ -1,0 +1,10 @@
+before_script:
+  - wget https://git.zx2c4.com/password-store/snapshot/password-store-1.7.tar.xz
+  - tar -xvf password-store-1.7.tar.xz
+  - export PATH=$PATH:$PWD/password-store-1.7/src
+
+install: true
+
+script:
+  - make lint
+  - cd test && make all
