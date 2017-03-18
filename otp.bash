@@ -18,6 +18,45 @@
 
 OATH=$(which oathtool)
 
+# Parse a Key URI per: https://github.com/google/google-authenticator/wiki/Key-Uri-Format
+# Vars are consumed by caller
+# shellcheck disable=SC2034
+otp_parse_uri() {
+  local uri="$*"
+
+  uri="${uri//\`/%60}"
+  uri="${uri//\"/%22}"
+
+  local pattern='^otpauth:\/\/(totp|hotp)(\/(([^:?]+)?(:([^:?]*))?))?(\?([^#&?]+))(&([^#&?]+))*$'
+  [[ "$uri" =~ $pattern ]] || die "Cannot parse OTP key URI: $uri"
+
+  otp_uri=${BASH_REMATCH[0]}
+  otp_type=${BASH_REMATCH[1]}
+  otp_label=${BASH_REMATCH[3]}
+
+  otp_accountname=${BASH_REMATCH[6]}
+  [[ -z $otp_accountname ]] && otp_accountname=${BASH_REMATCH[4]} || otp_issuer=${BASH_REMATCH[4]}
+
+  local parameters=(${BASH_REMATCH[@]:7})
+  pattern='^([^?&=]+)(=(.+))$'
+  for param in "${parameters[@]}"; do
+    if [[ "$param" =~ $pattern ]]; then
+      case ${BASH_REMATCH[1]} in
+        secret) otp_secret=${BASH_REMATCH[3]} ;;
+        digits) otp_digits=${BASH_REMATCH[3]} ;;
+        algorithm) otp_algorithm=${BASH_REMATCH[3]} ;;
+        period) otp_period=${BASH_REMATCH[3]} ;;
+        counter) otp_counter=${BASH_REMATCH[3]} ;;
+        issuer) otp_issuer=${BASH_REMATCH[3]} ;;
+        *) ;;
+      esac
+    fi
+  done
+
+  [[ -z "$otp_secret" ]] && die "Invalid key URI (missing secret): $otp_uri"
+  [[ "$otp_type" == 'hotp' && -z "$otp_counter" ]] && die "Invalid key URI (missing counter): $otp_uri"
+}
+
 otp_increment_counter() {
 	local ret=$1
 	local counter=$2 contents="$3" path="$4" passfile="$5"
@@ -265,11 +304,16 @@ cmd_otp_uri() {
 	fi
 }
 
+cmd_otp_validate() {
+    otp_parse_uri "$1"
+}
+
 case "$1" in
 	help|--help|-h) shift;	cmd_otp_usage "$@" ;;
 	show) shift;		cmd_otp_show "$@" ;;
 	insert|add) shift;	cmd_otp_insert "$@" ;;
 	uri) shift;		cmd_otp_uri "$@" ;;
+  validate) shift; cmd_otp_validate "$@" ;;
 	*)			cmd_otp_show "$@" ;;
 esac
 exit 0
