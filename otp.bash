@@ -320,32 +320,17 @@ cmd_otp_uri() {
   check_sneaky_paths "$path"
   [[ ! -f $passfile ]] && die "Passfile not found"
 
-  local secret="" type="" algorithm="" counter="" period=30 digits=6
-
   contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
-  while read -r -a line; do case ${line[0]} in
-    otp_secret:) secret=${line[1]} ;;
-    otp_type:) type=${line[1]} ;;
-    otp_algorithm:) algorithm=${line[1]} ;;
-    otp_period:) period=${line[1]} ;;
-    otp_counter:) counter=${line[1]} ;;
-    otp_digits:) digits=${line[1]} ;;
-    *) true ;;
-  esac done <<< "$contents"
-
-  local uri
-  case $type in
-    totp) uri="otpauth://totp/$path?secret=$secret&algorithm=$algorithm&digits=$digits&period=$period" ;;
-    hotp) uri="otpauth://hotp/$path?secret=$secret&digits=$digits&counter=$counter" ;;
-    *) die "Invalid OTP type '$type'. Must be one of 'totp' or 'hotp'" ;;
-  esac
+  while read -r -a line; do
+    [[ "$line" == otpauth://* ]] && otp_parse_uri "$line"
+  done <<< "$contents"
 
   if [[ clip -eq 1 ]]; then
-    clip "$uri" "OTP key URI for $path"
+    clip "$otp_uri" "OTP key URI for $path"
   elif [[ qrcode -eq 1 ]]; then
-    qrcode "$uri" "OTP key URI for $path"
+    qrcode "$otp_uri" "OTP key URI for $path"
   else
-    echo "$uri"
+    echo "$otp_uri"
   fi
 }
 
