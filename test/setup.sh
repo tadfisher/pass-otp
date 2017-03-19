@@ -33,12 +33,6 @@ export PASSWORD_STORE_ENABLE_EXTENSIONS=true
 export PASSWORD_STORE_EXTENSIONS_DIR="$EXT_HOME"
 
 export PASSWORD_STORE_DIR="$SHARNESS_TRASH_DIRECTORY/test-store"
-rm -rf "$PASSWORD_STORE_DIR"
-mkdir -p "$PASSWORD_STORE_DIR"
-if [[ ! -d $PASSWORD_STORE_DIR ]]; then
-	echo "Could not create $PASSWORD_STORE_DIR"
-	exit 1
-fi
 
 export GIT_DIR="$PASSWORD_STORE_DIR/.git"
 export GIT_WORK_TREE="$PASSWORD_STORE_DIR"
@@ -65,3 +59,13 @@ KEY2="D774A374"  # pass test key 2
 KEY3="EB7D54A8"  # pass test key 3
 KEY4="E4691410"  # pass test key 4
 KEY5="39E5020C"  # pass test key 5
+
+# Test helpers
+test_pass_init() {
+  rm -rf "$PASSWORD_STORE_DIR"
+  "$PASS" init "$KEY1"
+}
+
+test_faketty() {
+  script -qfc "$(printf "%q " "$@")"
+}

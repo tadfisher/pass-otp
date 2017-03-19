@@ -22,7 +22,7 @@ OATH=$(which oathtool)
 # Vars are consumed by caller
 # shellcheck disable=SC2034
 otp_parse_uri() {
-  local uri="$*"
+  local uri="$1"
 
   uri="${uri//\`/%60}"
   uri="${uri//\"/%22}"
@@ -75,16 +75,17 @@ otp_increment_counter() {
 }
 
 otp_insert() {
+  echo "args: $*"
+
 	local path="${1%/}"
 	local passfile="$PREFIX/$path.gpg"
 	local force=$2
 	local contents="$3"
 
 	check_sneaky_paths "$path"
+	set_git "$passfile"
 
 	[[ $force -eq 0 && -e $passfile ]] && yesno "An entry already exists for $path. Overwrite it?"
-
-	set_git "$passfile"
 
 	mkdir -p -v "$PREFIX/$(dirname "$path")"
 	set_gpg_recipients "$(dirname "$path")"
@@ -92,6 +93,25 @@ otp_insert() {
 	$GPG -e "${GPG_RECIPIENT_ARGS[@]}" -o "$passfile" "${GPG_OPTS[@]}" <<<"$contents" || die "OTP secret encryption aborted."
 
 	git_add_file "$passfile" "Add given OTP secret for $path to store."
+}
+
+otp_insert_uri() {
+  local opts force=0
+  opts="$($GETOPT -o f -l force -n "$PROGRAM" -- "$@")"
+  local err=$?
+  eval set -- "$opts"
+  while true; do case $1 in
+    -f|--force) force=1; shift ;;
+    --) shift; break ;;
+  esac done
+
+  [[ $err -ne 0 || $# -ne 2 ]] && die "Usage: $PROGRAM $COMMAND insert [--force,-f] uri pass-name"
+
+  local uri="$1"
+
+  otp_parse_uri "$uri"
+
+  otp_insert "$2" $force "$otp_uri"
 }
 
 otp_insert_totp() {
@@ -203,7 +223,7 @@ cmd_otp_insert() {
 	case "$1" in
 		totp) shift; otp_insert_totp "$@" ;;
 		hotp) shift; otp_insert_hotp "$@" ;;
-		*) die "Invalid OTP type '$1'. May be one of 'totp' or 'hotp'" ;;
+		*) otp_insert_uri "$@" ;;
 	esac
 }
 
