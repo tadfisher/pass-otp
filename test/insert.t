@@ -18,7 +18,7 @@ test_expect_success 'Prompts before overwriting key URI' '
 
   test_pass_init &&
   "$PASS" otp insert "$uri1" passfile &&
-  test_faketty "echo n | $PASS otp insert $uri2 passfile" &&
+  test_faketty "$PASS" otp insert "$uri2" passfile < <(echo n) &&
   [[ $("$PASS" show passfile) == "$uri1" ]]
 '
 
