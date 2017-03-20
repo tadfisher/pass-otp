@@ -143,7 +143,7 @@ cmd_otp_insert() {
 
   otp_parse_uri "$uri"
 
-  otp_insert "$path" $force "$otp_uri" "Add OTP secret for $2 to store."
+  otp_insert "$path" $force "$otp_uri" "Add OTP secret for $path to store."
 }
 
 cmd_otp_code() {
