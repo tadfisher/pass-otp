@@ -23,18 +23,18 @@ utility with the
 command for adding OTP secrets, generating OTP codes, and displaying secret key
 URIs using the standard \fIotpauth://\fP scheme.
 
-If no COMMAND is specified, COMMAND defaults to \fBshow\fP.
+If no COMMAND is specified, COMMAND defaults to \fBcode\fP.
 
 .SH COMMANDS
 
 .TP
-\fBotp show\fP [ \fI--clip\fP, \fI-c\fP ] \fIpass-name\fP
+\fBotp code\fP [ \fI--clip\fP, \fI-c\fP ] \fIpass-name\fP
 
 Generate and print an OTP code from the secret key stored in \fIpass-name\fP. If
 \fI--clip\fP or \fI-c\fP is specified, do not print the code but instead copy it to the clipboard using
 .BR xclip (1)
 and then restore the clipboard after 45 (or \fIPASSWORD_STORE_CLIP_TIME\fP)
-seconds.
+seconds. This command is alternatively named \fBshow\fP.
 
 .TP
 \fBotp insert\fP [ \fI--force\fP, \fI-f\fP ] \fIuri\fP \fIpass-name\fP
@@ -49,37 +49,25 @@ Prompt before overwriting an existing password, unless
 \fBadd\fP.
 
 .TP
-\fBotp insert totp\fP [ \fI--secret\fP=\fIkey\fP, \fI-s\fP \fIkey\fP ] [ \fI--issuer\fP=\fIissuer\fP, \fI-i\fP \fIissuer\fP ] [ \fI--accountname\fP=\fIname\fP, \fI-n\fP \fIname\fP ] [ \fI--algorithm\fP=\fIalgorithm\fP, \fI-a\fP \fIalgorithm\fP ] [ \fI--period\fP=\fIperiod\fP, \fI-p\fP \fIperiod\fP ] [ \fI--digits\fP=\fIdigits\fP, \fI-d\fP \fIdigits\fP ] [ \fI--force\fP, \fI-f\fP ] \fIpass-name\fP
+\fBotp uri\fP [ \fI--clip\fP, \fI-c\fP | \fI--qrcode\fP, \fI-q\fP ] \fIpass-name\fP
 
-Insert a new TOTP secret into the password store called \fIpass-name\fP. If
-\fI--secret\fP or \fI-s\fP are not specified, this will read \fIKEY\fP from
-standard in. Prompt before overwriting an existing password, unless
-\fI--force\fP or \fI-f\fP is specified. This command is alternatively named
-\fBadd totp\fP.
-
-.TP
-\fBotp insert hotp\fP [ \fI--secret\fP=\fIkey\fP, \fI-s\fP \fIkey\fP ] [ \fI--issuer\fP=\fIissuer\fP, \fI-i\fP \fIissuer\fP ] [ \fI--accountname\fP=\fIname\fP, \fI-n\fP \fIname\fP ] [ \fI--digits\fP=\fIdigits\fP, \fI-d\fP \fIdigits\fP ] [ \fI--force\fP, \fI-f\fP ] \fIpass-name\fP \fIcounter\fP
-
-Insert a new HOTP secret into the password store called \fIpass-name\fP. A
-\fIcounter\fP argument is required, which is an integer specifying the initial
-HOTP counter stored alongside the secret. If
-\fI--secret\fP or \fI-s\fP are not specified, this will read \fIKEY\fP from
-standard in. Prompt before overwriting an existing password, unless
-\fI--force\fP or \fI-f\fP is specified. This command is alternatively named
-\fBadd hotp\fP.
-
-.TP
-\fBotp uri\fP [ \fI--clip\fP, \fI-c\fP | \fI--qrcode\fP, \fI-q\fP ] pass-name
-
-Create and print a URI encoding the secret key and OTP parameters using the
-standard \fIotpauth://\fP scheme. If \fI--clip\fP or \fI-c\fP is specified, do
-not print the URI but instead copy it to the clipboard using
+Print the key URI stored in \fIpass-name\fP to stdout. If \fI--clip\fP or
+\fI-c\fP is specified, do not print the URI but instead copy it to the clipboard
+using
 .BR xclip (1)
 and then restore the clipboard after 45 (or \fIPASSWORD_STORE_CLIP_TIME\fP)
 seconds. If \fI--qrcode\fP or \fI-q\fP is specified, do not print the URI but
 instead display a QR code using
 .BR qrencode (1)
 either to the terminal or graphically if supported.
+
+.TP
+\fBotp validate\fP \fIuri\fP
+
+Test a URI string for validity according to the Key Uri Format. For more
+information about this format, see the documentation at
+.UR https://\:github.\:com/\:google/\:google-authenticator/\:wiki/\:Key-Uri-Format
+.UE .
 
 .SH OPTIONS
 
@@ -89,30 +77,10 @@ Put the OTP code in the clipboard.
 
 .TP
 \fB\-f\fP, \fB--force\fP
-Force to update and do not wait for user instruction.
+Force update and do not wait for user instruction.
 
 .TP
-\fB-s\fP \fIkey\fP, \fB--secret\fR=\fIkey\fP
-Provide a secret \fIkey\fP. This key must be base32-encoded.
-
-.TP
-\fB-a\fP \fIalgorithm\fP, \fB--algorithm\fP=\fIalgorithm\fP
-Specify the \fIalgorithm\fP for a TOTP secret. Accepted values are \fIsha1\fP,
-\fIsha256\fP, and \fIsha512\fP. This option defaults to \fIsha1\fP.
-
-.TP
-\fB-p\fP \fIperiod\fP, \fB--period\fP=\fIperiod\fP
-Specify the \fIperiod\fP for a TOTP secret, in seconds. This option defaults to
-\fI30\fP.
-
-.TP
-\fB-d\fP \fIdigits\fP, \fB--digits\fP=\fIdigits\fP
-Specify the number of \fIdigits\fP this secret should generate when used with
-\fBshow\fP. Accepted values are \fI6\fP and \fI8\fP. This option defaults to
-\fI6\fP.
-
-.TP
-\fB\-h\fB, \-\-help\fR
+\fBhelp\fP, \fB\-h\fB, \-\-help\fR
 Show usage message.
 
 .SH SEE ALSO

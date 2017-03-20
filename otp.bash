@@ -18,17 +18,6 @@
 
 OATH=$(which oathtool)
 
-otp_urlencode() {
-  local LANG=C
-  for ((i=0; i<${#1}; i++)); do
-    if [[ ${1:$i:1} =~ ^[a-zA-Z0-9\.\~_-]$ ]]; then
-    printf "%s" "${1:$i:1}"
-    else
-      printf '%%%02X' "'${1:$i:1}"
-    fi
-  done
-}
-
 # Parse a Key URI per: https://github.com/google/google-authenticator/wiki/Key-Uri-Format
 # Vars are consumed by caller
 # shellcheck disable=SC2034
@@ -47,6 +36,7 @@ otp_parse_uri() {
 
   otp_accountname=${BASH_REMATCH[6]}
   [[ -z $otp_accountname ]] && otp_accountname=${BASH_REMATCH[4]} || otp_issuer=${BASH_REMATCH[4]}
+  [[ -z $otp_accountname ]] && die "Invalid key URI (missing accountname): $otp_uri"
 
   local p=${BASH_REMATCH[7]}
   local IFS=\&; local params=(${p[@]}); unset IFS
@@ -72,49 +62,6 @@ otp_parse_uri() {
   [[ "$otp_type" == 'hotp' ]] && [[ ! "$otp_counter" =~ $pattern ]] && die "Invalid key URI (missing counter): $otp_uri"
 }
 
-otp_build_uri() {
-  local type="$1" issuer="$2" accountname="$3" secret="$4" algorithm="$5" \
-        digits="$6" period="$7" counter="$8"
-
-  local uri="otpauth://$type/"
-
-  local pattern='^[^:]+$'
-  if [[ -n "$issuer" ]]; then
-    [[ "$issuer" =~ $pattern ]] || die "Invalid character in issuer: ':'"
-    issuer=$(otp_urlencode "$issuer")
-  fi
-
-  [[ -z "$accountname" ]] && die "Missing accountname"
-  [[ "$accountname" =~ $pattern ]] || die "Invalid character in accountname: ':'"
-  accountname=$(otp_urlencode "$accountname")
-
-  if [[ -n "$issuer" ]]; then
-    uri+="$issuer:$accountname"
-  else
-    uri+="$accountname"
-  fi
-
-  [[ -z "$secret" ]] && die "Missing secret"; uri+="?secret=$secret"
-
-  case "$1" in
-    totp)
-      [[ -n "$algorithm" ]] && uri+="&algorithm=$algorithm"
-      [[ -n "$digits" ]] && uri+="&digits=$digits"
-      [[ -n "$period" ]] && uri+="&period=$period"
-      ;;
-
-    hotp)
-      [[ -z "$counter" ]] && die "Missing counter"; uri+="&counter=$counter"
-      ;;
-
-    *) die "Invalid OTP type '$1'" ;;
-  esac
-
-  [[ -n "$issuer" ]] && uri+="&issuer=$issuer"
-
-  echo "$uri"
-}
-
 otp_insert() {
   local path="${1%/}"
   local passfile="$PREFIX/$path.gpg"
@@ -132,82 +79,7 @@ otp_insert() {
 
   $GPG -e "${GPG_RECIPIENT_ARGS[@]}" -o "$passfile" "${GPG_OPTS[@]}" <<<"$contents" || die "OTP secret encryption aborted."
 
-  [[ -z "$message" ]] && message="Add OTP secret for $path to store."
-
   git_add_file "$passfile" "$message"
-}
-
-otp_insert_uri() {
-  local opts force=0
-  opts="$($GETOPT -o f -l force -n "$PROGRAM" -- "$@")"
-  local err=$?
-  eval set -- "$opts"
-  while true; do case $1 in
-    -f|--force) force=1; shift ;;
-    --) shift; break ;;
-  esac done
-
-  [[ $err -ne 0 || $# -ne 2 ]] && die "Usage: $PROGRAM $COMMAND insert [--force,-f] uri pass-name"
-
-  local uri="$1"
-
-  otp_parse_uri "$uri"
-
-  otp_insert "$2" $force "$otp_uri"
-}
-
-otp_insert_spec() {
-  local opts contents secret issuer accountname algorithm period digits counter force=0
-  local type="$1"; shift
-
-  opts="$($GETOPT -o s:i:n:a:p:d:f -l secret:,issuer:,accountname:,algorithm:,period:,digits:,force -n "$PROGRAM" -- "$@")"
-  local err=$?
-  eval set -- "$opts"
-  while true; do case "$1" in
-    -s|--secret) secret="$2"; shift 2 ;;
-    -i|--issuer) issuer="$2"; shift 2 ;;
-    -n|--accountname) accountname="$2"; shift 2 ;;
-    -a|--algorithm) algorithm="$2"; shift 2 ;;
-    -p|--period) period="$2"; shift 2 ;;
-    -d|--digits) digits="$2"; shift 2 ;;
-    -f|--force) force=1; shift ;;
-    --) shift; break ;;
-  esac done
-
-  [[ $type == "totp" && ($err -ne 0 || $# -ne 1) ]] &&
-    die "Usage: $PROGRAM $COMMAND insert totp [--secret=key,s key] [--issuer=issuer,-i issuer] [--accountname=name,-n name] [--algorithm=algorithm,-a algorithm] [--period=seconds,-p seconds] [--digits=digits,-d digits] [--force,-f] pass-name"
-
-  [[ $type == "hotp" && ($err -ne 0 || $# -ne 2) ]] &&
-    die "Usage: $PROGRAM $COMMAND insert hotp [--secret=key,s key] [--issuer=issuer,-i issuer] [--accountname=accountname,-n accountname] [--digits=digits,-d digits] [--force,-f] pass-name counter"
-
-  local path="$1" counter="$2"
-
-  [[ -n "$algorithm" ]] && case $algorithm in
-    sha1|sha256|sha512) ;;
-    *) die "Invalid algorithm '$algorithm'. May be one of 'sha1', 'sha256', or 'sha512'" ;;
-  esac
-
-  [[ -n "$digits" ]] && case $digits in
-    6|8) ;;
-    *) die "Invalid digits '$digits'. May be one of '6' or '8'" ;;
-  esac
-
-  if [[ -z $secret ]]; then
-    read -r -p "Enter secret (base32-encoded): " -s secret || die "Missing secret"
-  fi
-
-  # Populate issuer and accountname from either options or path
-  if [[ -z $accountname ]]; then
-    accountname="$(basename "$path")"
-    if [[ -z "$issuer" ]]; then
-      issuer="$(basename "$(dirname "$path")")"
-      [[ "$issuer" == "." ]] && unset issuer
-    fi
-  fi
-
-  local uri; uri=$(otp_build_uri "$type" "$issuer" "$accountname" "$secret" "$algorithm" "$period" "$digits" "$counter")
-
-  otp_insert "$1" $force "$uri"
 }
 
 cmd_otp_usage() {
@@ -216,19 +88,14 @@ Usage:
     $PROGRAM otp [show] [--clip,-c] pass-name
         Generate an OTP code and optionally put it on the clipboard.
         If put on the clipboard, it will be cleared in $CLIP_TIME seconds.
-    $PROGRAM otp insert totp [--secret=key,-s key] [--algorithm alg,-a alg]
-                             [--period=seconds,-p seconds]
-                             [--digits=digits,-d digits] [--force,-f] pass-name
-        Insert new TOTP secret. Prompt before overwriting existing password
+    $PROGRAM otp insert [--force,-f] uri pass-name
+        Insert new OTP key URI. Prompt before overwriting existing password
         unless forced.
-    $PROGRAM otp insert hotp [--secret=secret,-s secret]
-                             [--digits=digits,-d digits] [--force,-f]
-                             pass-name counter
-        Insert new HOTP secret with initial counter. Prompt before overwriting
-        existing password unless forced.
     $PROGRAM otp uri [--clip,-c] [--qrcode,-q] pass-name
-        Create a secret key URI suitable for importing into other TOTP clients.
-        Optionally, put it on the clipboard, or display a QR code.
+        Display the key URI stored in pass-name. Optionally, put it on the
+        clipboard, or display a QR code.
+    $PROGRAM otp validate uri
+        Test if the given URI is a valid OTP key URI.
 
 More information may be found in the pass-otp(1) man page.
 _EOF
@@ -236,13 +103,27 @@ _EOF
 }
 
 cmd_otp_insert() {
-  case "$1" in
-    totp|hotp) otp_insert_spec "$@" ;;
-    *) otp_insert_uri "$@" ;;
-  esac
+  local opts force=0
+  opts="$($GETOPT -o f -l force -n "$PROGRAM" -- "$@")"
+  local err=$?
+  eval set -- "$opts"
+  while true; do case $1 in
+                   -f|--force) force=1; shift ;;
+                   --) shift; break ;;
+                 esac done
+
+  [[ $err -ne 0 || $# -ne 2 ]] && die "Usage: $PROGRAM $COMMAND insert [--force,-f] uri pass-name"
+
+  local uri="$1"
+
+  otp_parse_uri "$uri"
+
+  otp_insert "$2" $force "$otp_uri" "Add OTP secret for $2 to store."
 }
 
 cmd_otp_code() {
+  [[ -z "$OATH" ]] && die "Failed to generate OTP code: oathtool is not installed."
+
   local opts clip=0
   opts="$($GETOPT -o c -l clip -n "$PROGRAM" -- "$@")"
   local err=$?
@@ -272,15 +153,15 @@ cmd_otp_code() {
     totp)
       cmd="$OATH -b --totp"
       [[ -n "$otp_algorithm" ]] && cmd+="=$otp_algorithm"
-      [[ -n "$otp_period" ]] && cmd+=" --time-step-size=$period"s
-      [[ -n "$otp_digits" ]] && cmd+=" --digits=$digits"
+      [[ -n "$otp_period" ]] && cmd+=" --time-step-size=$otp_period"s
+      [[ -n "$otp_digits" ]] && cmd+=" --digits=$otp_digits"
       cmd+=" $otp_secret"
       ;;
 
     hotp)
       local counter=$((otp_counter+1))
       cmd="$OATH -b --hotp --counter=$counter"
-      [[ -n "$otp_digits" ]] && cmd+=" --digits=$digits"
+      [[ -n "$otp_digits" ]] && cmd+=" --digits=$otp_digits"
       cmd+=" $otp_secret"
       ;;
   esac
