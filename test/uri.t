@@ -8,7 +8,7 @@ test_expect_success 'Shows key URI in single-line passfile' '
   uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
 
   test_pass_init &&
-  "$PASS" otp insert "$uri" passfile &&
+  "$PASS" otp insert passfile <<< "$uri" &&
   [[ $("$PASS" otp uri passfile) == "$uri" ]]
 '
 

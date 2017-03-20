@@ -37,16 +37,17 @@ and then restore the clipboard after 45 (or \fIPASSWORD_STORE_CLIP_TIME\fP)
 seconds. This command is alternatively named \fBshow\fP.
 
 .TP
-\fBotp insert\fP [ \fI--force\fP, \fI-f\fP ] [ \fI--echo\fP, \fI-e\fP ] [ \fIuri\fP ] \fIpass-name\fP
+\fBotp insert\fP [ \fI--force\fP, \fI-f\fP ] [ \fI--echo\fP, \fI-e\fP ] [ \fIpass-name\fP ]
 
-Insert a new OTP secret specified by \fIuri\fP into the password store at
-\fIpass-name\fP. \fIuri\fP must be formatted according to the Key Uri Format;
+Prompt for and insert a new OTP secret into the password store at
+\fIpass-name\fP. The secret must be formatted according to the Key Uri Format;
 see the documentation at
 .UR https://\:github.\:com/\:google/\:google-authenticator/\:wiki/\:Key-Uri-Format
 .UE .
-If \fIuri\fP is not specified, it will be consumed from stdin; specify
-\fI--echo\fP or \fI-e\fP to show a visible prompt when running this command
-interactively. Prompt before overwriting an existing password, unless
+The URI is consumed from stdin; specify \fI--echo\fP or \fI-e\fP to echo input
+when running this command interactively. If \fIpass-name\fP is not specified,
+convert the \fIissuer:accountname\fP URI label to a path in the form of
+\fIisser/accountname\fP. Prompt before overwriting an existing password, unless
 \fI--force\fP or \fI-f\fP is specified. This command is alternatively named
 \fBadd\fP.
 
