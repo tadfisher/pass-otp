@@ -95,10 +95,10 @@ otp_build_uri() {
   fi
 
   [[ -z "$secret" ]] && die "Missing secret"; uri+="?secret=$secret"
-  [[ -n "$algorithm" ]] && uri+="&algorithm=$algorithm"
 
   case "$1" in
     totp)
+      [[ -n "$algorithm" ]] && uri+="&algorithm=$algorithm"
       [[ -n "$digits" ]] && uri+="&digits=$digits"
       [[ -n "$period" ]] && uri+="&period=$period"
       ;;
@@ -115,28 +115,12 @@ otp_build_uri() {
   echo "$uri"
 }
 
-otp_increment_counter() {
-  local ret=$1
-  local counter=$2 contents="$3" path="$4" passfile="$5"
-
-  local inc=$((counter+1))
-
-  contents=${contents//otp_counter: $counter/otp_counter: $inc}
-
-  set_gpg_recipients "$(dirname "$path")"
-
-  $GPG -e "${GPG_RECIPIENT_ARGS[@]}" -o "$passfile" "${GPG_OPTS[@]}" <<<"$contents" || die "OTP secret encryption aborted."
-
-  git_add_file "$passfile" "Update HOTP counter value for $path."
-
-  eval "$ret='$inc'"
-}
-
 otp_insert() {
   local path="${1%/}"
   local passfile="$PREFIX/$path.gpg"
   local force=$2
   local contents="$3"
+  local message="$4"
 
   check_sneaky_paths "$path"
   set_git "$passfile"
@@ -148,7 +132,9 @@ otp_insert() {
 
   $GPG -e "${GPG_RECIPIENT_ARGS[@]}" -o "$passfile" "${GPG_OPTS[@]}" <<<"$contents" || die "OTP secret encryption aborted."
 
-  git_add_file "$passfile" "Add given OTP secret for $path to store."
+  [[ -z "$message" ]] && message="Add OTP secret for $path to store."
+
+  git_add_file "$passfile" "$message"
 }
 
 otp_insert_uri() {
@@ -256,8 +242,8 @@ cmd_otp_insert() {
   esac
 }
 
-cmd_otp_show() {
-  local opts contents clip=0 secret="" type="" algorithm="" counter="" period=30 digits=6
+cmd_otp_code() {
+  local opts clip=0
   opts="$($GETOPT -o c -l clip -n "$PROGRAM" -- "$@")"
   local err=$?
   eval set -- "$opts"
@@ -266,7 +252,7 @@ cmd_otp_show() {
     --) shift; break ;;
   esac done
 
-  [[ $err -ne 0 || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND show [--clip,-c] pass-name"
+  [[ $err -ne 0 || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND [--clip,-c] pass-name"
 
   local path="$1"
   local passfile="$PREFIX/$path.gpg"
@@ -274,30 +260,38 @@ cmd_otp_show() {
   [[ ! -f $passfile ]] && die "Passfile not found"
 
   contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
-  while read -r -a line; do case ${line[0]} in
-    otp_secret:) secret=${line[1]} ;;
-    otp_type:) type=${line[1]} ;;
-    otp_algorithm:) algorithm=${line[1]} ;;
-    otp_period:) period=${line[1]} ;;
-    otp_counter:) counter=${line[1]} ;;
-    otp_digits:) digits=${line[1]} ;;
-    *) true ;;
-  esac done <<< "$contents"
+  while read -r -a line; do
+    if [[ "$line" == otpauth://* ]]; then
+      otp_parse_uri "$line"
+      break
+    fi
+  done <<< "$contents"
 
-  [[ -z $secret ]] && die "Missing otp_secret: line in $passfile"
-  [[ -z $type ]] && die "Missing otp_type: line in $passfile"
-  [[ $type = "totp" && -z $algorithm ]] && die "Missing otp_algorithm: line in $passfile"
-  [[ $type = "hotp" && -z $counter ]] && die "Missing otp_counter: line in $passfile"
-
-  local out
-  case $type in
-    totp) out=$($OATH -b --totp="$algorithm" --time-step-size="$period"s --digits="$digits" "$secret") ;;
-    hotp) otp_increment_counter counter "$counter" "$contents" "$path" "$passfile" > /dev/null \
-        || die "Failed to increment HOTP counter for $passfile"
-      out=$($OATH -b --hotp --counter="$counter" --digits="$digits" "$secret")
+  local cmd
+  case "$otp_type" in
+    totp)
+      cmd="$OATH -b --totp"
+      [[ -n "$otp_algorithm" ]] && cmd+="=$otp_algorithm"
+      [[ -n "$otp_period" ]] && cmd+=" --time-step-size=$period"s
+      [[ -n "$otp_digits" ]] && cmd+=" --digits=$digits"
+      cmd+=" $otp_secret"
       ;;
-    *) die "Invalid OTP type '$type'. May be one of 'totp' or 'hotp'" ;;
+
+    hotp)
+      local counter=$((otp_counter+1))
+      cmd="$OATH -b --hotp --counter=$counter"
+      [[ -n "$otp_digits" ]] && cmd+=" --digits=$digits"
+      cmd+=" $otp_secret"
+      ;;
   esac
+
+  local out; out=$($cmd) || die "Failed to generate OTP code for $path"
+
+  if [[ "$otp_type" == "hotp" ]]; then
+    # Increment HOTP counter in-place
+    local uri=${otp_uri/&counter=$otp_counter/&counter=$counter}
+    otp_insert "$path" 1 "$uri" "Increment HOTP counter for $path."
+  fi
 
   if [[ $clip -ne 0 ]]; then
     clip "$out" "OTP code for $path"
@@ -326,7 +320,10 @@ cmd_otp_uri() {
 
   contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
   while read -r -a line; do
-    [[ "$line" == otpauth://* ]] && otp_parse_uri "$line"
+    if [[ "$line" == otpauth://* ]]; then
+      otp_parse_uri "$line"
+      break
+    fi
   done <<< "$contents"
 
   if [[ clip -eq 1 ]]; then
@@ -344,10 +341,10 @@ cmd_otp_validate() {
 
 case "$1" in
   help|--help|-h) shift; cmd_otp_usage "$@" ;;
-  show)           shift; cmd_otp_show "$@" ;;
   insert|add)     shift; cmd_otp_insert "$@" ;;
   uri)            shift; cmd_otp_uri "$@" ;;
   validate)       shift; cmd_otp_validate "$@" ;;
-  *)                     cmd_otp_show "$@" ;;
+  code|show)      shift; cmd_otp_code "$@" ;;
+  *)                     cmd_otp_code "$@" ;;
 esac
 exit 0
