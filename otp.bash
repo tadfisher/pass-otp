@@ -88,9 +88,10 @@ Usage:
     $PROGRAM otp [show] [--clip,-c] pass-name
         Generate an OTP code and optionally put it on the clipboard.
         If put on the clipboard, it will be cleared in $CLIP_TIME seconds.
-    $PROGRAM otp insert [--force,-f] uri pass-name
-        Insert new OTP key URI. Prompt before overwriting existing password
-        unless forced.
+    $PROGRAM otp insert [--force,-f] [--echo,-e] [uri] pass-name
+        Insert a new OTP key URI. If one is not supplied, it will be read from
+        stdin. Optionally, echo the input. Prompt before overwriting existing
+        password unless forced.
     $PROGRAM otp uri [--clip,-c] [--qrcode,-q] pass-name
         Display the key URI stored in pass-name. Optionally, put it on the
         clipboard, or display a QR code.
@@ -103,22 +104,45 @@ _EOF
 }
 
 cmd_otp_insert() {
-  local opts force=0
-  opts="$($GETOPT -o f -l force -n "$PROGRAM" -- "$@")"
+  local opts force=0 echo=0
+  opts="$($GETOPT -o fe -l force,echo -n "$PROGRAM" -- "$@")"
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
-                   -f|--force) force=1; shift ;;
-                   --) shift; break ;;
-                 esac done
+    -f|--force) force=1; shift ;;
+    -e|--echo) echo=1; shift ;;
+    --) shift; break ;;
+  esac done
 
-  [[ $err -ne 0 || $# -ne 2 ]] && die "Usage: $PROGRAM $COMMAND insert [--force,-f] uri pass-name"
+  [[ $err -ne 0 || ($# -ne 1 && $# -ne 2) ]] && die "Usage: $PROGRAM $COMMAND insert [--force,-f] [uri] pass-name"
 
-  local uri="$1"
+  local path uri
+  if [[ $# -eq 1 ]]; then
+    path="$1"
+    if [[ -t 0 ]]; then
+      if [[ $echo -eq 0 ]]; then
+        while true; do
+          read -r -p "Enter otpauth:// URI for $path: " -s uri || exit 1
+          echo
+          read -r -p "Retype otpauth:// URI for $path: " -s uri_again || exit 1
+          echo
+          [[ "$uri" == "$uri_again" ]] && break
+          die "Error: the entered URIs do not match."
+        done
+      else
+        read -r -p "Enter otpauth:// URI for $path: " -e uri
+      fi
+    else
+      read -r uri
+    fi
+  else
+    uri="$1"
+    path="$2"
+  fi
 
   otp_parse_uri "$uri"
 
-  otp_insert "$2" $force "$otp_uri" "Add OTP secret for $2 to store."
+  otp_insert "$path" $force "$otp_uri" "Add OTP secret for $2 to store."
 }
 
 cmd_otp_code() {
@@ -217,7 +241,7 @@ cmd_otp_uri() {
 }
 
 cmd_otp_validate() {
-    otp_parse_uri "$1"
+  otp_parse_uri "$1"
 }
 
 case "$1" in

@@ -32,4 +32,28 @@ test_expect_success 'Force overwrites key URI' '
   [[ $("$PASS" show passfile) == "$uri2" ]]
 '
 
+test_expect_success 'Reads non-terminal input' '
+  uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+
+  test_pass_init &&
+  "$PASS" otp insert passfile <<< "$uri" &&
+  [[ $("$PASS" show passfile) == "$uri" ]]
+'
+
+test_expect_success 'Reads terminal input in noecho mode' '
+  uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+
+  test_pass_init &&
+  test_faketty "$PASS" otp insert passfile < <(echo -ne "$uri\n$uri\n") &&
+  [[ $("$PASS" show passfile) == "$uri" ]]
+'
+
+test_expect_success 'Reads terminal input in echo mode' '
+  uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+
+  test_pass_init &&
+  test_faketty "$PASS" otp insert -e passfile <<< "$uri" &&
+  [[ $("$PASS" show passfile) == "$uri" ]]
+'
+
 test_done

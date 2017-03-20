@@ -1,4 +1,4 @@
-.TH PASS-OTP 1 "2017 February 14" "Password store OTP extension"
+.TH PASS-OTP 1 "2017 March 19" "Password store OTP extension"
 
 .SH NAME
 pass-otp - A \fBpass\fP(1) extension for managing one-time-password (OTP) tokens.
@@ -30,21 +30,23 @@ If no COMMAND is specified, COMMAND defaults to \fBcode\fP.
 .TP
 \fBotp code\fP [ \fI--clip\fP, \fI-c\fP ] \fIpass-name\fP
 
-Generate and print an OTP code from the secret key stored in \fIpass-name\fP. If
-\fI--clip\fP or \fI-c\fP is specified, do not print the code but instead copy it to the clipboard using
-.BR xclip (1)
+Generate and print an OTP code from the secret key stored in \fIpass-name\fP
+using \fBoathtool\fP(1). If \fI--clip\fP or \fI-c\fP is specified, do not print
+the code but instead copy it to the clipboard using \fBxclip\fP(1)
 and then restore the clipboard after 45 (or \fIPASSWORD_STORE_CLIP_TIME\fP)
 seconds. This command is alternatively named \fBshow\fP.
 
 .TP
-\fBotp insert\fP [ \fI--force\fP, \fI-f\fP ] \fIuri\fP \fIpass-name\fP
+\fBotp insert\fP [ \fI--force\fP, \fI-f\fP ] [ \fI--echo\fP, \fI-e\fP ] [ \fIuri\fP ] \fIpass-name\fP
 
 Insert a new OTP secret specified by \fIuri\fP into the password store at
 \fIpass-name\fP. \fIuri\fP must be formatted according to the Key Uri Format;
 see the documentation at
 .UR https://\:github.\:com/\:google/\:google-authenticator/\:wiki/\:Key-Uri-Format
 .UE .
-Prompt before overwriting an existing password, unless
+If \fIuri\fP is not specified, it will be consumed from stdin; specify
+\fI--echo\fP or \fI-e\fP to show a visible prompt when running this command
+interactively. Prompt before overwriting an existing password, unless
 \fI--force\fP or \fI-f\fP is specified. This command is alternatively named
 \fBadd\fP.
 
