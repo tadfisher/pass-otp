@@ -63,6 +63,12 @@ Use [zbar](http://zbar.sourceforge.net/) to decode a QR image into a passfile:
 $ zbarimg -q --raw qrcode.png | pass otp insert totp-secret
 ```
 
+The same, but appending to an existing passfile:
+
+```
+$ zbarimg -q --raw google-qrcode.png | pass otp append google/example@gmail.com
+```
+
 Generate a 2FA code using this token:
 
 ```
