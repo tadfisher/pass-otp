@@ -107,7 +107,7 @@ sudo make install
 
 ## Requirements
 
-- `pass` 1.7.0 or later for extenstion support
+- `pass` 1.7.0 or later for extension support
 - `oathtool` for generating 2FA codes
 - `qrencode` for generating QR code images
 

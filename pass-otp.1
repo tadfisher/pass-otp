@@ -52,6 +52,18 @@ convert the \fIissuer:accountname\fP URI label to a path in the form of
 \fBadd\fP.
 
 .TP
+\fBotp append\fP [ \fI--force\fP, \fI-f\fP ] [ \fI--echo\fP, \fI-e\fP ] \fIpass-name\fP
+
+Append an OTP secret to the password stored in \fIpass-name\fP, preserving any
+existing lines. The secret must be formatted according to the Key Uri Format;
+see the documentation at
+.UR https://\:github.\:com/\:google/\:google-authenticator/\:wiki/\:Key-Uri-Format
+.UE .
+The URI is consumed from stdin; specify \fI--echo\fP or \fI-e\fP to echo input
+when running this command interactively. Prompt before overwriting an existing
+secret, unless \fI--force\fP or \fI-f\fP is specified.
+
+.TP
 \fBotp uri\fP [ \fI--clip\fP, \fI-c\fP | \fI--qrcode\fP, \fI-q\fP ] \fIpass-name\fP
 
 Print the key URI stored in \fIpass-name\fP to stdout. If \fI--clip\fP or
@@ -75,20 +87,13 @@ information about this format, see the documentation at
 .SH OPTIONS
 
 .TP
-\fB\-c\fP, \fB--clip\fP
-Put the OTP code in the clipboard.
-
-.TP
-\fB\-f\fP, \fB--force\fP
-Force update and do not wait for user instruction.
-
-.TP
-\fBhelp\fP, \fB\-h\fB, \-\-help\fR
+\fBhelp\fP, \fB\-h\fP, \fB\-\-help\fP
 Show usage message.
 
 .SH SEE ALSO
-.BR pass(1),
-
+.BR pass (1),
+.BR qrencode (1),
+.BR zbarimg (1)
 
 .SH AUTHORS
 .B pass-otp
@@ -96,7 +101,6 @@ was written by
 .MT tadfisher@gmail.com
 Tad Fisher
 .ME .
-
 
 .SH COPYING
 This program is free software: you can redistribute it and/or modify
