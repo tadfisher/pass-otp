@@ -24,4 +24,28 @@ test_expect_success 'Generates HOTP code and increments counter' '
   [[ $("$PASS" otp uri passfile) == "$inc" ]]
 '
 
+test_expect_success 'HOTP counter increments and preserves multiline contents' '
+  uri="otpauth://hotp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&counter=10&issuer=Example"
+  inc="otpauth://hotp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&counter=11&issuer=Example"
+
+  read -r -d "" existing <<EOF
+foo bar baz
+zab rab oof
+$uri1
+baz bar foo
+EOF
+
+  read -r -d "" expected <<EOF
+foo bar baz
+zab rab oof
+$uri2
+baz bar foo
+EOF
+
+  test_pass_init &&
+  "$PASS" insert -mf passfile <<< "$existing" &&
+  "$PASS" otp code passfile &&
+  [[ $("$PASS" show passfile) == "$expected" ]]
+'
+
 test_done
