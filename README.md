@@ -49,7 +49,7 @@ Pipe an `otpauth://` URI into a passfile:
 $ cat totp-uri.txt | pass otp insert totp-secret
 ```
 
-Use `[zbar](http://zbar.sourceforge.net/)` to decode a QR image into a passfile:
+Use [zbar](http://zbar.sourceforge.net/) to decode a QR image into a passfile:
 
 ```
 $ zbarimg -q --raw qrcode.png | pass otp insert totp-secret
@@ -126,8 +126,16 @@ otp_digits: 6
 New format:
 
 ```
-otpauth://
+otpauth://totp/totp-secret?secret=AAAAAAAAAAAAAAAA&issuer=totp-secret
 ```
+
+Note that the following default values do not need to be specified in the URI:
+
+| parameter | default |
+| --------- | ------- |
+| algorithm | sha1    |
+| period    | 30      |
+| digits    | 6       |
 
 ## License
 
