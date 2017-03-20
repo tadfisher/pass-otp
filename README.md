@@ -31,22 +31,25 @@ More information may be found in the pass-otp(1) man page.
 
 ## Examples
 
-Insert a TOTP token:
-
-```
-$ pass otp insert otpauth://totp/totp-secret?secret=AAAAAAAAAAAAAAAA totp-secret
-```
-
-Have `pass-otp` prompt you for a token (avoids potential shell history leakage):
+Prompt for an OTP token, hiding input:
 
 ```
 $ pass otp insert totp-secret
+Enter otpauth:// URI for totp-secret:
+Retype otpauth:// URI for totp-secret:
+```
+
+Prompt for an OTP token, echoing input:
+
+```
+$ pass otp insert -e totp-secret
+Enter otpauth:// URI for totp-secret: otpauth://totp/totp-secret?secret=AAAAAAAAAAAAAAAA&issuer=totp-secret
 ```
 
 Pipe an `otpauth://` URI into a passfile:
 
 ```
-$ cat totp-uri.txt | pass otp insert totp-secret
+$ cat totp-secret.txt | pass otp insert totp-secret
 ```
 
 Use [zbar](http://zbar.sourceforge.net/) to decode a QR image into a passfile:
@@ -89,11 +92,18 @@ $ pass otp uri -q totp-secret
 
 ## Installation
 
+### From git
+
 ```
 git clone https://github.com/tadfisher/pass-otp
 cd pass-otp
 sudo make install
 ```
+
+### Arch Linux
+
+`pass-otp` is available in the
+[Arch User Repository](https://aur.archlinux.org/packages/pass-otp/).
 
 ## Requirements
 
