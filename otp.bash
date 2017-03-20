@@ -38,7 +38,7 @@ otp_parse_uri() {
   uri="${uri//\`/%60}"
   uri="${uri//\"/%22}"
 
-  local pattern='^otpauth:\/\/(totp|hotp)(\/(([^:?]+)?(:([^:?]*))?))?(\?([^#&?]+))(&([^#&?]+))*$'
+  local pattern='^otpauth:\/\/(totp|hotp)(\/(([^:?]+)?(:([^:?]*))?))?\?(.+)$'
   [[ "$uri" =~ $pattern ]] || die "Cannot parse OTP key URI: $uri"
 
   otp_uri=${BASH_REMATCH[0]}
@@ -48,24 +48,28 @@ otp_parse_uri() {
   otp_accountname=${BASH_REMATCH[6]}
   [[ -z $otp_accountname ]] && otp_accountname=${BASH_REMATCH[4]} || otp_issuer=${BASH_REMATCH[4]}
 
-  local parameters=(${BASH_REMATCH[@]:7})
-  pattern='^([^?&=]+)(=(.+))$'
-  for param in "${parameters[@]}"; do
+  local p=${BASH_REMATCH[7]}
+  local IFS=\&; local params=(${p[@]}); unset IFS
+
+  pattern='^(.+)=(.+)$'
+  for param in "${params[@]}"; do
     if [[ "$param" =~ $pattern ]]; then
       case ${BASH_REMATCH[1]} in
-        secret) otp_secret=${BASH_REMATCH[3]} ;;
-        digits) otp_digits=${BASH_REMATCH[3]} ;;
-        algorithm) otp_algorithm=${BASH_REMATCH[3]} ;;
-        period) otp_period=${BASH_REMATCH[3]} ;;
-        counter) otp_counter=${BASH_REMATCH[3]} ;;
-        issuer) otp_issuer=${BASH_REMATCH[3]} ;;
+        secret) otp_secret=${BASH_REMATCH[2]} ;;
+        digits) otp_digits=${BASH_REMATCH[2]} ;;
+        algorithm) otp_algorithm=${BASH_REMATCH[2]} ;;
+        period) otp_period=${BASH_REMATCH[2]} ;;
+        counter) otp_counter=${BASH_REMATCH[2]} ;;
+        issuer) otp_issuer=${BASH_REMATCH[2]} ;;
         *) ;;
       esac
     fi
   done
 
   [[ -z "$otp_secret" ]] && die "Invalid key URI (missing secret): $otp_uri"
-  [[ "$otp_type" == 'hotp' && -z "$otp_counter" ]] && die "Invalid key URI (missing counter): $otp_uri"
+
+  pattern='^[0-9]+$'
+  [[ "$otp_type" == 'hotp' ]] && [[ ! "$otp_counter" =~ $pattern ]] && die "Invalid key URI (missing counter): $otp_uri"
 }
 
 otp_build_uri() {

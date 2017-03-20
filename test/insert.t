@@ -67,7 +67,7 @@ test_expect_success 'Commits insert to git' '
   test_pass_init &&
   pass git init &&
   "$PASS" otp insert totp -s AAAAAAAAAAAAAAAAAAAAA passfile &&
-  git log --no-decorate -1 | grep "Add given OTP secret for passfile to store."
+  git log --no-decorate -1 | grep "Add OTP secret for passfile to store."
 '
 
 test_done
