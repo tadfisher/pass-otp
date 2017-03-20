@@ -85,16 +85,20 @@ otp_insert() {
 cmd_otp_usage() {
   cat <<-_EOF
 Usage:
-    $PROGRAM otp [show] [--clip,-c] pass-name
+
+    $PROGRAM otp [code] [--clip,-c] pass-name
         Generate an OTP code and optionally put it on the clipboard.
         If put on the clipboard, it will be cleared in $CLIP_TIME seconds.
+
     $PROGRAM otp insert [--force,-f] [--echo,-e] [uri] pass-name
         Insert a new OTP key URI. If one is not supplied, it will be read from
         stdin. Optionally, echo the input. Prompt before overwriting existing
         password unless forced.
+
     $PROGRAM otp uri [--clip,-c] [--qrcode,-q] pass-name
         Display the key URI stored in pass-name. Optionally, put it on the
         clipboard, or display a QR code.
+
     $PROGRAM otp validate uri
         Test if the given URI is a valid OTP key URI.
 
@@ -128,7 +132,6 @@ cmd_otp_insert() {
         [[ "$uri" == "$uri_again" ]] || die "Error: the entered URIs do not match."
       else
         read -r -p "Enter otpauth:// URI for $path: " -e uri
-        echo
       fi
     else
       read -r uri
