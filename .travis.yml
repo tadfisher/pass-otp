@@ -27,3 +27,10 @@ install: true
 script:
   - make lint
   - cd test && make all
+
+notifications:
+  email:
+    recipients:
+      - tadfisher@gmail.com
+    on_success: never
+    on_failure: always
