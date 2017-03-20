@@ -14,10 +14,15 @@ Usage:
         Generate an OTP code and optionally put it on the clipboard.
         If put on the clipboard, it will be cleared in 45 seconds.
 
-    pass otp insert [--force,-f] [--echo,-e] [uri] pass-name
-        Insert a new OTP key URI. If one is not supplied, it will be read from
-        stdin. Optionally, echo the input. Prompt before overwriting existing
-        password unless forced.
+    pass otp insert [--force,-f] [--echo,-e] [pass-name]
+        Prompt for and insert a new OTP key URI. If pass-name is not supplied,
+        use the URI label. Optionally, echo the input. Prompt before overwriting
+        existing password unless forced. This command accepts input from stdin.
+
+    pass otp append [--force,-f] [--echo,-e] pass-name
+        Appends an OTP key URI to an existing password file. Optionally, echo
+        the input. Prompt before overwriting an existing URI unless forced. This
+        command accepts input from stdin.
 
     pass otp uri [--clip,-c] [--qrcode,-q] pass-name
         Display the key URI stored in pass-name. Optionally, put it on the
