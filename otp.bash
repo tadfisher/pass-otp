@@ -175,10 +175,10 @@ otp_insert_spec() {
   esac done
 
   [[ $type == "totp" && ($err -ne 0 || $# -ne 1) ]] &&
-    die "Usage: $PROGRAM $COMMAND insert totp [--secret=key,s key] [--algorithm=algorithm,-a algorithm] [--period=seconds,-p seconds] [--digits=digits,-d digits] [--force,-f] pass-name"
+    die "Usage: $PROGRAM $COMMAND insert totp [--secret=key,s key] [--issuer=issuer,-i issuer] [--accountname=name,-n name] [--algorithm=algorithm,-a algorithm] [--period=seconds,-p seconds] [--digits=digits,-d digits] [--force,-f] pass-name"
 
   [[ $type == "hotp" && ($err -ne 0 || $# -ne 2) ]] &&
-    die "Usage: $PROGRAM $COMMAND insert hotp [--secret=key,s key] [--digits=digits,-d digits] [--force,-f] pass-name counter"
+    die "Usage: $PROGRAM $COMMAND insert hotp [--secret=key,s key] [--issuer=issuer,-i issuer] [--accountname=accountname,-n accountname] [--digits=digits,-d digits] [--force,-f] pass-name counter"
 
   local path="$1" counter="$2"
 
