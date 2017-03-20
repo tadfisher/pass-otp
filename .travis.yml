@@ -7,6 +7,8 @@ addons:
     sources:
       - debian-sid
     packages:
+      - expect
+      - oathtool
       - shellcheck
 
 before_script:
