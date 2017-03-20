@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # This file should be sourced by all test-scripts
 #
 # This scripts sets the following:
@@ -64,8 +66,4 @@ KEY5="39E5020C"  # pass test key 5
 test_pass_init() {
   rm -rf "$PASSWORD_STORE_DIR"
   "$PASS" init "$KEY1"
-}
-
-test_faketty() {
-  script -qfc "$(printf "%q " "$@")"
 }

@@ -121,16 +121,14 @@ cmd_otp_insert() {
     path="$1"
     if [[ -t 0 ]]; then
       if [[ $echo -eq 0 ]]; then
-        while true; do
-          read -r -p "Enter otpauth:// URI for $path: " -s uri || exit 1
-          echo
-          read -r -p "Retype otpauth:// URI for $path: " -s uri_again || exit 1
-          echo
-          [[ "$uri" == "$uri_again" ]] && break
-          die "Error: the entered URIs do not match."
-        done
+        read -r -p "Enter otpauth:// URI for $path: " -s uri || exit 1
+        echo
+        read -r -p "Retype otpauth:// URI for $path: " -s uri_again || exit 1
+        echo
+        [[ "$uri" == "$uri_again" ]] || die "Error: the entered URIs do not match."
       else
         read -r -p "Enter otpauth:// URI for $path: " -e uri
+        echo
       fi
     else
       read -r uri

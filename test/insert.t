@@ -16,9 +16,18 @@ test_expect_success 'Prompts before overwriting key URI' '
   uri1="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Foo"
   uri2="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Bar"
 
-  test_pass_init &&
-  "$PASS" otp insert "$uri1" passfile &&
-  test_faketty "$PASS" otp insert "$uri2" passfile < <(echo n) &&
+  test_pass_init
+  "$PASS" otp insert "$uri1" passfile
+  expect <<EOD
+    spawn "$PASS" otp insert "$uri2" passfile
+    expect {
+      "An entry already exists" {
+        send "n\r"
+        exp_continue
+      }
+      eof
+    }
+EOD
   [[ $("$PASS" show passfile) == "$uri1" ]]
 '
 
@@ -43,16 +52,38 @@ test_expect_success 'Reads non-terminal input' '
 test_expect_success 'Reads terminal input in noecho mode' '
   uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
 
-  test_pass_init &&
-  test_faketty "$PASS" otp insert passfile < <(echo -ne "$uri\n$uri\n") &&
+  test_pass_init
+  expect <<EOD
+    spawn "$PASS" otp insert passfile
+    expect {
+      "Enter" {
+        send "$uri\r"
+        exp_continue
+      }
+      "Retype" {
+        send "$uri\r"
+        exp_continue
+      }
+      eof
+    }
+EOD
   [[ $("$PASS" show passfile) == "$uri" ]]
 '
 
 test_expect_success 'Reads terminal input in echo mode' '
   uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
 
-  test_pass_init &&
-  test_faketty "$PASS" otp insert -e passfile <<< "$uri" &&
+  test_pass_init
+  expect <<EOD
+    spawn "$PASS" otp insert -e passfile
+    expect {
+      "Enter" {
+        send "$uri\r"
+        exp_continue
+      }
+      eof
+    }
+EOD
   [[ $("$PASS" show passfile) == "$uri" ]]
 '
 
