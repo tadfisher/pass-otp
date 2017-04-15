@@ -125,7 +125,6 @@ cd pass-otp
 make install PREFIX=/usr/local
 ```
 
-
 ## Requirements
 
 - `pass` 1.7.0 or later for extension support
