@@ -116,6 +116,16 @@ sudo make install
 `pass-otp` is available in the
 [Arch User Repository](https://aur.archlinux.org/packages/pass-otp/).
 
+### macOS
+
+```
+brew install oath-toolkit
+git clone https://github.com/tadfisher/pass-otp
+cd pass-otp
+make install PREFIX=/usr/local
+```
+
+
 ## Requirements
 
 - `pass` 1.7.0 or later for extension support
