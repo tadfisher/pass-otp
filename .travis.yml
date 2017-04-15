@@ -3,7 +3,7 @@ dist: trusty
 language: bash
 
 env:
-  - PASS_VERSION=1.7
+  - PASS_VERSION=1.7.1
   - PASS_VERSION=master
 
 addons:
