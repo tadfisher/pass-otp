@@ -31,7 +31,7 @@ otp_parse_uri() {
   [[ "$uri" =~ $pattern ]] || die "Cannot parse OTP key URI: $uri"
 
   otp_uri=${BASH_REMATCH[0]}
-  otp_type=${BASH_REMATCH[1]}
+  otp_type=${BASH_REMATCH[1],,}
   otp_label=${BASH_REMATCH[3]}
 
   otp_accountname=${BASH_REMATCH[6]}
