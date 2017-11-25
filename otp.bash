@@ -18,6 +18,26 @@
 
 OATH=$(which oathtool)
 
+## source:  https://gist.github.com/cdown/1163649
+urlencode() {
+  local l=${#1}
+  for (( i = 0 ; i < l ; i++ )); do
+    local c=${1:i:1}
+    case "$c" in
+      [a-zA-Z0-9.~_-]) printf "%c" "$c";;
+      ' ') printf + ;;
+      *) printf '%%%.2X' "'$c"
+    esac
+  done
+}
+
+urldecode() {
+  # urldecode <string>
+
+  local url_encoded="${1//+/ }"
+  printf '%b' "${url_encoded//%/\\x}"
+}
+
 # Parse a Key URI per: https://github.com/google/google-authenticator/wiki/Key-Uri-Format
 # Vars are consumed by caller
 # shellcheck disable=SC2034
@@ -34,8 +54,8 @@ otp_parse_uri() {
   otp_type=${BASH_REMATCH[1]}
   otp_label=${BASH_REMATCH[3]}
 
-  otp_accountname=${BASH_REMATCH[6]}
-  [[ -z $otp_accountname ]] && otp_accountname=${BASH_REMATCH[4]} || otp_issuer=${BASH_REMATCH[4]}
+  otp_accountname=$(urldecode "${BASH_REMATCH[6]}")
+  [[ -z $otp_accountname ]] && otp_accountname=$(urldecode "${BASH_REMATCH[4]}") || otp_issuer=$(urldecode "${BASH_REMATCH[4]}")
   [[ -z $otp_accountname ]] && die "Invalid key URI (missing accountname): $otp_uri"
 
   local p=${BASH_REMATCH[7]}
@@ -50,7 +70,7 @@ otp_parse_uri() {
         algorithm) otp_algorithm=${BASH_REMATCH[2]} ;;
         period) otp_period=${BASH_REMATCH[2]} ;;
         counter) otp_counter=${BASH_REMATCH[2]} ;;
-        issuer) otp_issuer=${BASH_REMATCH[2]} ;;
+        issuer) otp_issuer=$(urldecode "${BASH_REMATCH[2]}") ;;
         *) ;;
       esac
     fi
@@ -82,6 +102,29 @@ otp_read_uri() {
   otp_parse_uri "$uri"
 }
 
+otp_read_secret() {
+  local uri prompt="$1" echo="$2" issuer accountname
+  issuer="$(urlencode "$3")"
+  accountname="$(urlencode "$4")"
+
+  if [[ -t 0 ]]; then
+    if [[ $echo -eq 0 ]]; then
+      read -r -p "Enter Secret Parameter for $prompt: " -s secret || exit 1
+      echo
+      read -r -p "Retype Secret Parameter for $prompt: " -s secret_again || exit 1
+      echo
+      [[ "$secret" == "$secret_again" ]] || die "Error: the entered Secrets do not match."
+    else
+        read -r -p "Enter Secret Parameter for $prompt: " -e secret
+    fi
+  else
+      read -r secret
+  fi
+
+  uri="otpauth://totp/$issuer:$accountname?secret=$secret&issuer=$issuer"
+  otp_parse_uri "$uri"
+}
+
 otp_insert() {
   local path="$1" passfile="$2" contents="$3" message="$4"
 
@@ -104,12 +147,12 @@ Usage:
         Generate an OTP code and optionally put it on the clipboard.
         If put on the clipboard, it will be cleared in $CLIP_TIME seconds.
 
-    $PROGRAM otp insert [--force,-f] [--echo,-e] [pass-name]
+    $PROGRAM otp insert [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i Issuer] [--account,-a Account] [pass-name]
         Prompt for and insert a new OTP key URI. If pass-name is not supplied,
         use the URI label. Optionally, echo the input. Prompt before overwriting
         existing password unless forced. This command accepts input from stdin.
 
-    $PROGRAM otp append [--force,-f] [--echo,-e] pass-name
+    $PROGRAM otp append [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i Issuer] [--account,-a Account] pass-name
         Appends an OTP key URI to an existing password file. Optionally, echo
         the input. Prompt before overwriting an existing URI unless forced. This
         command accepts input from stdin.
@@ -127,17 +170,20 @@ _EOF
 }
 
 cmd_otp_insert() {
-  local opts force=0 echo=0
-  opts="$($GETOPT -o fe -l force,echo -n "$PROGRAM" -- "$@")"
+  local opts force=0 echo=0 from_secret=0
+  opts="$($GETOPT -o fesi:a: -l force,echo,secret,issuer:,account: -n "$PROGRAM" -- "$@")"
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
     -f|--force) force=1; shift ;;
     -e|--echo) echo=1; shift ;;
+    -s|--secret) from_secret=1; shift;;
+    -i|--issuer) issuer=$2; shift; shift;;
+    -a|--account) account=$2;  shift; shift;;
     --) shift; break ;;
   esac done
 
-  [[ $err -ne 0 ]] && die "Usage: $PROGRAM $COMMAND insert [--force,-f] [--echo,-e] [pass-name]"
+  [[ $err -ne 0 ]] && die "Usage: $PROGRAM $COMMAND insert [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i Issuer] [--account,-a Account] [pass-name]"
 
   local prompt path uri
   if [[ $# -eq 1 ]]; then
@@ -147,7 +193,11 @@ cmd_otp_insert() {
     prompt="this token"
   fi
 
-  otp_read_uri "$prompt" $echo
+  if [[ $from_secret -eq 1 ]]; then
+    otp_read_secret "$prompt" $echo "$issuer" "$account"
+  else
+    otp_read_uri "$prompt" $echo
+  fi
 
   if [[ -z "$path" ]]; then
     [[ -n "$otp_issuer" ]] && path+="$otp_issuer/"
@@ -162,17 +212,20 @@ cmd_otp_insert() {
 }
 
 cmd_otp_append() {
-  local opts force=0 echo=0
-  opts="$($GETOPT -o fe -l force,echo -n "$PROGRAM" -- "$@")"
+  local opts force=0 echo=0 from_secret=0
+  opts="$($GETOPT -o fesi:a: -l force,echo,secret,issuer:account: -n "$PROGRAM" -- "$@")"
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
     -f|--force) force=1; shift ;;
     -e|--echo) echo=1; shift ;;
+    -s|--secret) from_secret=1; shift;;
+    -i|--issuer) issuer=$2; shift; shift;;
+    -a|--account) account=$2;  shift; shift;;
     --) shift; break ;;
   esac done
 
-  [[ $err -ne 0 || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND append [--force,-f] [--echo,-e] pass-name"
+  [[ $err -ne 0 || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND append [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i Issuer] [--account,-a Account] pass-name"
 
   local prompt uri
   local path="${1%/}"
@@ -189,7 +242,11 @@ cmd_otp_append() {
 
   [[ -n "$existing" ]] && yesno "An OTP secret already exists for $path. Overwrite it?"
 
-  otp_read_uri "$path" $echo
+  if [[ $from_secret -eq 1 ]]; then
+    otp_read_secret "$prompt" $echo "$issuer" "$account"
+  else
+    otp_read_uri "$prompt" $echo
+  fi
 
   local replaced
   if [[ -n "$existing" ]]; then
