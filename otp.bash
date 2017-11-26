@@ -194,6 +194,7 @@ cmd_otp_insert() {
   fi
 
   if [[ $from_secret -eq 1 ]]; then
+    ([[ -z "$issuer" ]] || [[ -z "$account" ]]) && die "Missing issuer or account"
     otp_read_secret "$prompt" $echo "$issuer" "$account"
   else
     otp_read_uri "$prompt" $echo
@@ -243,6 +244,7 @@ cmd_otp_append() {
   [[ -n "$existing" ]] && yesno "An OTP secret already exists for $path. Overwrite it?"
 
   if [[ $from_secret -eq 1 ]]; then
+    ([[ -z "$issuer" ]] || [[ -z "$account" ]]) && die "Missing issuer or account"
     otp_read_secret "$prompt" $echo "$issuer" "$account"
   else
     otp_read_uri "$prompt" $echo
