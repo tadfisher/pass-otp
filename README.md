@@ -116,7 +116,7 @@ sudo make install
 `pass-otp` is available in the `[community]` repository:
 
 ```
-pacman -Sy pass-otp
+pacman -S pass-otp
 ```
 
 ### macOS
