@@ -19,8 +19,7 @@ before_script:
   - wget https://git.zx2c4.com/password-store/snapshot/password-store-$PASS_VERSION.tar.xz
   - tar -xvf password-store-$PASS_VERSION.tar.xz
   - ln -s password-store-$PASS_VERSION/src/password-store.sh pass
-  - cabal update
-  - cabal install ShellCheck
+  - if [ ! -f "${HOME}/.cabal/bin/shellcheck" ]; then cabal update; cabal install ShellCheck; fi
   - ln -s "${HOME}/.cabal/bin/shellcheck" shellcheck
   - export PATH=$PATH:.
   - export TEST_OPTS="-v"
