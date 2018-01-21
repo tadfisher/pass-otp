@@ -109,13 +109,13 @@ otp_read_secret() {
 
   if [[ -t 0 ]]; then
     if [[ $echo -eq 0 ]]; then
-      read -r -p "Enter Secret Parameter for $prompt: " -s secret || exit 1
+      read -r -p "Enter secret for $prompt: " -s secret || exit 1
       echo
-      read -r -p "Retype Secret Parameter for $prompt: " -s secret_again || exit 1
+      read -r -p "Retype secret for $prompt: " -s secret_again || exit 1
       echo
-      [[ "$secret" == "$secret_again" ]] || die "Error: the entered Secrets do not match."
+      [[ "$secret" == "$secret_again" ]] || die "Error: the entered secrets do not match."
     else
-        read -r -p "Enter Secret Parameter for $prompt: " -e secret
+        read -r -p "Enter secret for $prompt: " -e secret
     fi
   else
       read -r secret
@@ -147,15 +147,30 @@ Usage:
         Generate an OTP code and optionally put it on the clipboard.
         If put on the clipboard, it will be cleared in $CLIP_TIME seconds.
 
-    $PROGRAM otp insert [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i Issuer] [--account,-a Account] [pass-name]
-        Prompt for and insert a new OTP key URI. If pass-name is not supplied,
-        use the URI label. Optionally, echo the input. Prompt before overwriting
-        existing password unless forced. This command accepts input from stdin.
+    $PROGRAM otp insert [--force,-f] [--echo,-e]
+            [[--secret, -s] [--issuer,-i issuer] [--account,-a account]]
+            [pass-name]
+        Prompt for and insert a new OTP key.
 
-    $PROGRAM otp append [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i Issuer] [--account,-a Account] pass-name
-        Appends an OTP key URI to an existing password file. Optionally, echo
-        the input. Prompt before overwriting an existing URI unless forced. This
-        command accepts input from stdin.
+        If 'secret' is specified, prompt for the OTP secret, assuming SHA1
+        algorithm, 30-second period, and 6 OTP digits; one of 'issuer' or
+        'account' is also required. Otherwise, prompt for a key URI; if
+        'pass-name' is not supplied, use the URI label.
+
+        Optionally, echo the input. Prompt before overwriting existing URI
+        unless forced. This command accepts input from stdin.
+
+    $PROGRAM otp append [--force,-f] [--echo,-e]
+            [[--secret, -s] [--issuer,-i issuer] [--account,-a account]]
+            pass-name
+        Appends an OTP key URI to an existing password file.
+
+        If 'secret' is specified, prompt for the OTP secret, assuming SHA1
+        algorithm, 30-second period, and 6 OTP digits; one of 'issuer' or
+        'account' is also required. Otherwise, prompt for a key URI.
+
+        Optionally, echo the input. Prompt before overwriting an existing URI
+        unless forced. This command accepts input from stdin.
 
     $PROGRAM otp uri [--clip,-c] [--qrcode,-q] pass-name
         Display the key URI stored in pass-name. Optionally, put it on the
@@ -183,7 +198,7 @@ cmd_otp_insert() {
     --) shift; break ;;
   esac done
 
-  [[ $err -ne 0 ]] && die "Usage: $PROGRAM $COMMAND insert [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i Issuer] [--account,-a Account] [pass-name]"
+  [[ $err -ne 0 ]] && die "Usage: $PROGRAM $COMMAND insert [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i issuer] [--account,-a account] [pass-name]"
 
   local prompt path uri
   if [[ $# -eq 1 ]]; then
@@ -226,7 +241,7 @@ cmd_otp_append() {
     --) shift; break ;;
   esac done
 
-  [[ $err -ne 0 || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND append [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i Issuer] [--account,-a Account] pass-name"
+  [[ $err -ne 0 || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND append [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i issuer] [--account,-a account] pass-name"
 
   local prompt uri
   local path="${1%/}"
