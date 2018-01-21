@@ -37,28 +37,46 @@ and then restore the clipboard after 45 (or \fIPASSWORD_STORE_CLIP_TIME\fP)
 seconds. This command is alternatively named \fBshow\fP.
 
 .TP
-\fBotp insert\fP [ \fI--force\fP, \fI-f\fP ] [ \fI--echo\fP, \fI-e\fP ] [ \fIpass-name\fP ]
+\fBotp insert\fP [ \fI--force\fP, \fI-f\fP ] [ \fI--echo\fP, \fI-e\fP ] \
+[ [ \fI--secret\fP, \fI-s\fP ] [ \fI--issuer\fP, \fI-i\fP \fIissuer\fP ] \
+[ \fI--account\fP, \fI-a\fP \fIaccount\fP ] ] [ \fIpass-name\fP ]
 
 Prompt for and insert a new OTP secret into the password store at
-\fIpass-name\fP. The secret must be formatted according to the Key Uri Format;
-see the documentation at
+\fIpass-name\fP.
+
+If \fI--secret\fP is specified, prompt for the \fIsecret\fP value, assuming SHA1
+algorithm, 30-second period, and 6 OTP digits. One or both of \fIissuer\fP and
+\fIaccount\fP must also be specified.
+
+If \fI--secret\fP is not specified, prompt for a key URI; see the documentation at
 .UR https://\:github.\:com/\:google/\:google-authenticator/\:wiki/\:Key-Uri-Format
-.UE .
-The URI is consumed from stdin; specify \fI--echo\fP or \fI-e\fP to echo input
+.UE
+for the key URI specification.
+
+The secret is consumed from stdin; specify \fI--echo\fP or \fI-e\fP to echo input
 when running this command interactively. If \fIpass-name\fP is not specified,
 convert the \fIissuer:accountname\fP URI label to a path in the form of
-\fIisser/accountname\fP. Prompt before overwriting an existing password, unless
+\fIisser/accountname\fP. Prompt before overwriting an existing secret, unless
 \fI--force\fP or \fI-f\fP is specified. This command is alternatively named
 \fBadd\fP.
 
 .TP
-\fBotp append\fP [ \fI--force\fP, \fI-f\fP ] [ \fI--echo\fP, \fI-e\fP ] \fIpass-name\fP
+\fBotp append\fP [ \fI--force\fP, \fI-f\fP ] [ \fI--echo\fP, \fI-e\fP ] \
+[ [ \fI--secret\fP, \fI-s\fP ] [ \fI--issuer\fP, \fI-i\fP \fIissuer\fP ] \
+[ \fI--account\fP, \fI-a\fP \fIaccount\fP ] ] \fIpass-name\fP
 
 Append an OTP secret to the password stored in \fIpass-name\fP, preserving any
-existing lines. The secret must be formatted according to the Key Uri Format;
-see the documentation at
+existing lines.
+
+If \fI--secret\fP is specified, prompt for the \fIsecret\fP value, assuming SHA1
+algorithm, 30-second period, and 6 OTP digits. One or both of \fIissuer\fP and
+\fIaccount\fP must also be specified.
+
+If \fI--secret\fP is not specified, prompt for a key URI; see the documentation at
 .UR https://\:github.\:com/\:google/\:google-authenticator/\:wiki/\:Key-Uri-Format
-.UE .
+.UE
+for the key URI specification.
+
 The URI is consumed from stdin; specify \fI--echo\fP or \fI-e\fP to echo input
 when running this command interactively. Prompt before overwriting an existing
 secret, unless \fI--force\fP or \fI-f\fP is specified.
