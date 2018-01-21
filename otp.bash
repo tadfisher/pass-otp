@@ -317,7 +317,7 @@ cmd_otp_code() {
   case "$otp_type" in
     totp)
       cmd="$OATH -b --totp"
-      [[ -n "$otp_algorithm" ]] && cmd+="=${otp_algorithm,,}"
+      [[ -n "$otp_algorithm" ]] && cmd+=$(echo "=${otp_algorithm}"|tr "[:upper:]" "[:lower:]")
       [[ -n "$otp_period" ]] && cmd+=" --time-step-size=$otp_period"s
       [[ -n "$otp_digits" ]] && cmd+=" --digits=$otp_digits"
       cmd+=" $otp_secret"
