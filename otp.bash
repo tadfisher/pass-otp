@@ -59,7 +59,8 @@ otp_parse_uri() {
   [[ -z $otp_accountname ]] && die "Invalid key URI (missing accountname): $otp_uri"
 
   local p=${BASH_REMATCH[7]}
-  local IFS=\&; local params=(${p[@]}); unset IFS
+  local params
+  local IFS=\&; read -r -a params <<< "$p"; unset IFS
 
   pattern='^(.+)=(.+)$'
   for param in "${params[@]}"; do
