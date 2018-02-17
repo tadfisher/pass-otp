@@ -379,9 +379,9 @@ cmd_otp_uri() {
     fi
   done <<< "$contents"
 
-  if [[ clip -eq 1 ]]; then
+  if [[ $clip -eq 1 ]]; then
     clip "$otp_uri" "OTP key URI for $path"
-  elif [[ qrcode -eq 1 ]]; then
+  elif [[ $qrcode -eq 1 ]]; then
     qrcode "$otp_uri" "OTP key URI for $path"
   else
     echo "$otp_uri"
