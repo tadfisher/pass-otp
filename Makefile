@@ -29,4 +29,10 @@ uninstall:
 lint:
 	shellcheck -s bash $(PROG).bash
 
+doc: pass-$(PROG).1
+
+pass-$(PROG).1: pass-$(PROG).1.md
+	@echo "Building pass-$(PROG) documentation"
+	@pandoc -s -f markdown -t man pass-$(PROG).1.md -o pass-$(PROG).1
+
 .PHONY: install uninstall lint
