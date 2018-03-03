@@ -47,6 +47,7 @@ clean-except-prove-cache:
 
 clean: clean-except-prove-cache
 	$(RM) .prove
+	$(RM) gnupg/random_seed
 
 aggregate-results-and-cleanup: $(T)
 	$(MAKE) aggregate-results
