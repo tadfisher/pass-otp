@@ -1,6 +1,15 @@
 Change Log
 =============
 
+Version 1.1.0 *(2018-03-04)*
+-------------------------------
+
+ * New: `insert` and `append` commands accept secret parameters directly using
+   the `--secret`, `--issuer` and `--account` arguments.
+ * Fix compatibility with Bash versions prior to 4.x.
+ * Return an error status for `code` when the passfile does not contain an
+   `otpauth://` entry.
+
 Version 1.0.0 *(2017-03-20)*
 -------------------------------
 
