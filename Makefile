@@ -29,4 +29,7 @@ uninstall:
 lint:
 	shellcheck -s bash $(PROG).bash
 
-.PHONY: install uninstall lint
+test:
+	$(MAKE) -C test
+
+.PHONY: install uninstall lint test

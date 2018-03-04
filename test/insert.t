@@ -112,4 +112,22 @@ test_expect_success 'Force overwrites key URI' '
   [[ $("$PASS" show passfile) == "$uri2" ]]
 '
 
+test_expect_success 'Insert passfile from secret with options(issuer, accountname)' '
+  secret="JBSWY3DPEHPK3PXP"
+  uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+
+  test_pass_init &&
+  "$PASS" otp insert -s -i Example -a alice@google.com passfile <<< "$secret" &&
+   echo [[ $("$PASS" show passfile) == "$uri" ]]
+'
+
+test_expect_success 'Insert from secret without passfile' '
+  secret="JBSWY3DPEHPK3PXP"
+  uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+
+  test_pass_init &&
+  "$PASS" otp insert -s -i Example -a alice@google.com <<< "$secret" &&
+   echo [[ $("$PASS" show Example/alice@google.com) == "$uri" ]]
+'
+
 test_done

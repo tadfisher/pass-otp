@@ -14,6 +14,17 @@ test_expect_success 'Reads non-terminal input' '
   [[ $("$PASS" otp uri passfile) == "$uri" ]]
 '
 
+test_expect_success 'Read secret non-terminal input' '
+  existing="foo bar baz"
+  secret=JBSWY3DPEHPK3PXP
+  uri="otpauth://totp/Example:alice%40google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+
+  test_pass_init &&
+  "$PASS" insert -e passfile <<< "$existing" &&
+  "$PASS" otp append -s -i Example -a alice@google.com -e passfile <<< "$secret" &&
+  [[ $("$PASS" otp uri passfile) == "$uri" ]]
+'
+
 test_expect_success 'Reads terminal input in noecho mode' '
   existing="foo bar baz"
   uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
