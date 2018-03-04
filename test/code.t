@@ -4,6 +4,12 @@ export test_description='Tests pass otp code generation'
 
 . ./setup.sh
 
+test_expect_success 'Fails for missing secret' '
+  test_pass_init &&
+  "$PASS" insert passfile <<< "12345"
+  test_expect_code 1 pass otp passfile
+'
+
 test_expect_success 'Generates TOTP code' '
   uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
 
@@ -31,14 +37,14 @@ test_expect_success 'HOTP counter increments and preserves multiline contents' '
   read -r -d "" existing <<EOF
 foo bar baz
 zab rab oof
-$uri1
+$uri
 baz bar foo
 EOF
 
   read -r -d "" expected <<EOF
 foo bar baz
 zab rab oof
-$uri2
+$inc
 baz bar foo
 EOF
 
