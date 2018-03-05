@@ -134,6 +134,11 @@ make install PREFIX=/usr/local
 - `oathtool` for generating 2FA codes
 - `qrencode` for generating QR code images
 
+### Build requirements
+
+- `expect` - `make test` requirement
+- `shellcheck` - `make lint` requirement
+
 ## Migrating from pass-otp 0.1
 
 `pass-otp` has switched to storing OTP tokens in the
