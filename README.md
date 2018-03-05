@@ -120,6 +120,28 @@ sudo make install
 pacman -S pass-otp
 ```
 
+### NixOS
+
+- `configuration.nix`
+
+System-wide:
+
+```nix
+environment.systemPackages = [ pkgs.pass-otp ];
+```
+
+Per-user:
+
+```nix
+users.users.<name>.packages = [ pkgs.pass-otp ];
+```
+
+- Imperative
+
+```
+nix-env -i pass-otp
+```
+
 ### macOS
 
 ```
