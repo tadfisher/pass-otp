@@ -127,13 +127,17 @@ pacman -S pass-otp
 System-wide:
 
 ```nix
-environment.systemPackages = [ pkgs.pass-otp ];
+{
+  environment.systemPackages = [ pkgs.pass-otp ];
+}
 ```
 
 Per-user:
 
 ```nix
-users.users.<name>.packages = [ pkgs.pass-otp ];
+{
+  users.users."name".packages = [ pkgs.pass-otp ];
+}
 ```
 
 - Imperative
