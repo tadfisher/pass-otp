@@ -1,6 +1,6 @@
 
-|  |  |
-|--|--|
+| Branch | Status |
+|--------|--------|
 | [**master**](https://github.com/tadfisher/pass-otp/tree/master) | [![Build Status: master](https://travis-ci.org/tadfisher/pass-otp.svg?branch=master)](https://travis-ci.org/tadfisher/pass-otp) |
 | [**develop**](https://github.com/tadfisher/pass-otp/tree/develop) | [![Build Status: develop](https://travis-ci.org/tadfisher/pass-otp.svg?branch=develop)](https://travis-ci.org/tadfisher/pass-otp) |
 
