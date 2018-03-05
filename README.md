@@ -136,8 +136,13 @@ make install PREFIX=/usr/local
 
 ### Build requirements
 
-- `expect` - `make test` requirement
-- `shellcheck` - `make lint` requirement
+- `make test`
+  - `pass` >= 1.7.0
+  - `git`
+  - `oathtool`
+  - `expect`
+- `make lint`
+  - `shellcheck`
 
 ## Migrating from pass-otp 0.1
 
