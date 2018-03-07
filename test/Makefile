@@ -61,5 +61,8 @@ aggregate-results:
 		echo "$$f"; \
 	done | '$(SHELL_PATH_SQ)' '$(AGGREGATE_SCRIPT)'
 
-.PHONY: all test prove $(T) pre-clean clean
+lint:
+	shellcheck -s bash setup.sh
+
+.PHONY: all test prove $(T) pre-clean clean lint
 .PHONY: aggregate-results-and-cleanup aggregate-results
