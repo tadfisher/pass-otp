@@ -29,6 +29,9 @@ T = $(sort $(wildcard *.t))
 
 all: $(DEFAULT_TEST_TARGET)
 
+debug: pre-clean
+	TEST_OPTS="-v" $(MAKE) aggregate-results-and-cleanup
+
 test: pre-clean
 	$(MAKE) aggregate-results-and-cleanup
 
