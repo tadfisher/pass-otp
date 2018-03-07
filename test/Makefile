@@ -64,5 +64,5 @@ aggregate-results: $(T)
 lint:
 	shellcheck -s bash setup.sh
 
-.PHONY: all test prove $(T) pre-clean clean lint
+.PHONY: all debug test prove $(T) pre-clean clean lint
 .PHONY: aggregate-results-and-cleanup aggregate-results
