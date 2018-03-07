@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # []
 
+VERSION="1.1.0"
 OATH=$(which oathtool)
 
 ## source:  https://gist.github.com/cdown/1163649
@@ -182,6 +183,11 @@ Usage:
 
 More information may be found in the pass-otp(1) man page.
 _EOF
+  exit 0
+}
+
+cmd_otp_version() {
+  echo $VERSION
   exit 0
 }
 
@@ -398,6 +404,7 @@ cmd_otp_validate() {
 
 case "$1" in
   help|--help|-h) shift; cmd_otp_usage "$@" ;;
+  version|--version) shift; cmd_otp_version "$@" ;;
   insert|add)     shift; cmd_otp_insert "$@" ;;
   append)         shift; cmd_otp_append "$@" ;;
   uri)            shift; cmd_otp_uri "$@" ;;
