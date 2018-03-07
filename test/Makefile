@@ -52,11 +52,11 @@ clean: clean-except-prove-cache
 	$(RM) .prove
 	$(RM) gnupg/random_seed
 
-aggregate-results-and-cleanup: $(T)
+aggregate-results-and-cleanup:
 	$(MAKE) aggregate-results
 	$(MAKE) clean
 
-aggregate-results:
+aggregate-results: $(T)
 	for f in test-results/*.counts; do \
 		echo "$$f"; \
 	done | '$(SHELL_PATH_SQ)' '$(AGGREGATE_SCRIPT)'
