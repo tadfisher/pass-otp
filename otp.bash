@@ -105,9 +105,10 @@ otp_read_uri() {
 }
 
 otp_read_secret() {
-  local uri prompt="$1" echo="$2" issuer accountname
-  issuer="$(urlencode "$3")"
-  accountname="$(urlencode "$4")"
+  local uri prompt="$1" echo="$2" issuer accountname separator
+  [ ! "$3" = false ] && issuer="$(urlencode "$3")"
+  [ ! "$4" = false ] && accountname="$(urlencode "$4")"
+  [ -n "$issuer" ] && [ -n "$accountname" ] && separator=":"
 
   if [[ -t 0 ]]; then
     if [[ $echo -eq 0 ]]; then
@@ -123,7 +124,8 @@ otp_read_secret() {
       read -r secret
   fi
 
-  uri="otpauth://totp/$issuer:$accountname?secret=$secret&issuer=$issuer"
+  uri="otpauth://totp/${issuer}${separator}${accountname}?secret=${secret}"
+  [ -n "$issuer" ] && uri="${uri}&issuer=${issuer}"
   otp_parse_uri "$uri"
 }
 
@@ -216,7 +218,11 @@ cmd_otp_insert() {
   fi
 
   if [[ $from_secret -eq 1 ]]; then
-    ([[ -z "$issuer" ]] || [[ -z "$account" ]]) && die "Missing issuer or account"
+    [ -z "$issuer" ] && issuer=false
+    [ -z "$account" ] && account=false
+
+    [ "$issuer" = false ] && [ "$account" = false ] && die "Missing one of either '--issuer' or '--account'"
+
     otp_read_secret "$prompt" $echo "$issuer" "$account"
   else
     otp_read_uri "$prompt" $echo
