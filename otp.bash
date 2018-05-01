@@ -256,8 +256,9 @@ cmd_otp_append() {
 
   [[ $err -ne 0 || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND append [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i issuer] [--account,-a account] pass-name"
 
-  local prompt uri
+  local uri
   local path="${1%/}"
+  local prompt="$path"
   local passfile="$PREFIX/$path.gpg"
 
   [[ -f $passfile ]] || die "Passfile not found"
