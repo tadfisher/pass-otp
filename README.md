@@ -58,7 +58,7 @@ Enter otpauth:// URI for totp-secret: otpauth://totp/totp-secret?secret=AAAAAAAA
 Pipe an `otpauth://` URI into a passfile:
 
 ```
-$ cat totp-secret.txt | pass otp insert totp-secret
+$ pass otp insert totp-secret < totp-secret.txt 
 ```
 
 Use [zbar](http://zbar.sourceforge.net/) to decode a QR image into a passfile:
