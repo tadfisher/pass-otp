@@ -27,8 +27,9 @@ unset EDITOR
 
 # We must be called from test/
 TEST_HOME="$(pwd)"
-EXT_HOME="$(dirname $TEST_HOME)"
+EXT_HOME="$(dirname "$TEST_HOME")"
 
+# shellcheck disable=SC1091
 . ./sharness.sh
 
 export PASSWORD_STORE_ENABLE_EXTENSIONS=true
@@ -41,29 +42,33 @@ export GIT_WORK_TREE="$PASSWORD_STORE_DIR"
 git config --global user.email "Pass-Automated-Testing-Suite@zx2c4.com"
 git config --global user.name "Pass Automated Testing Suite"
 
-PASS=`which pass`
-if [[ ! -e $PASS ]]; then
-	echo "Could not find pass command"
-	exit 1
-fi
+PASS=$(which pass)
+[[ -e $PASS ]] || error "Could not find pass command"
+
+EXPECT=$(which expect)
+[[ -e $EXPECT ]] || error "Could not find expect command"
+
+OAUTHTOOL=$(which oathtool)
+[[ -e $OAUTHTOOL ]] || error "Could not find oathtool command"
+
+GPG=$(which gpg2) || GPG=$(which gpg)
+[[ -e $GPG ]] || error "Could not find gpg command"
 
 # Note: the assumption is the test key is unencrypted.
 export GNUPGHOME="$TEST_HOME/gnupg/"
 chmod 700 "$GNUPGHOME"
-GPG="gpg"
-which gpg2 &>/dev/null && GPG="gpg2"
 
 # We don't want any currently running agent to conflict.
 unset GPG_AGENT_INFO
 
-KEY1="CF90C77B"  # pass test key 1
-KEY2="D774A374"  # pass test key 2
-KEY3="EB7D54A8"  # pass test key 3
-KEY4="E4691410"  # pass test key 4
-KEY5="39E5020C"  # pass test key 5
+KEY[1]="CF90C77B"  # pass test key 1
+KEY[2]="D774A374"  # pass test key 2
+KEY[3]="EB7D54A8"  # pass test key 3
+KEY[4]="E4691410"  # pass test key 4
+KEY[5]="39E5020C"  # pass test key 5
 
 # Test helpers
 test_pass_init() {
   rm -rf "$PASSWORD_STORE_DIR"
-  "$PASS" init "$KEY1"
+  "$PASS" init "${KEY[@]}"
 }

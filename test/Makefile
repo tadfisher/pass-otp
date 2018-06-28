@@ -29,6 +29,9 @@ T = $(sort $(wildcard *.t))
 
 all: $(DEFAULT_TEST_TARGET)
 
+debug: pre-clean
+	TEST_OPTS="-v" $(MAKE) aggregate-results-and-cleanup
+
 test: pre-clean
 	$(MAKE) aggregate-results-and-cleanup
 
@@ -49,14 +52,17 @@ clean: clean-except-prove-cache
 	$(RM) .prove
 	$(RM) gnupg/random_seed
 
-aggregate-results-and-cleanup: $(T)
+aggregate-results-and-cleanup:
 	$(MAKE) aggregate-results
 	$(MAKE) clean
 
-aggregate-results:
+aggregate-results: $(T)
 	for f in test-results/*.counts; do \
 		echo "$$f"; \
 	done | '$(SHELL_PATH_SQ)' '$(AGGREGATE_SCRIPT)'
 
-.PHONY: all test prove $(T) pre-clean clean
+lint:
+	shellcheck -s bash setup.sh
+
+.PHONY: all debug test prove $(T) pre-clean clean lint
 .PHONY: aggregate-results-and-cleanup aggregate-results

@@ -1,6 +1,22 @@
 Change Log
 =============
 
+Version 1.1.1 *(2018-06-28)*
+-------------------------------
+
+This is mainly a bugfix release.
+
+ * Numerous build and test infrstructure updates. (thanks @LucidOne)
+ * `insert` and `append` now require only one of "issuer" or "account",
+   matching the documentation. (thanks @sudoforge and @xPMo)
+ * `append` now displays the passfile in its prompt. (thanks @sudoforge)
+ * Add a separate `LICENSE` file. (thanks @dmarcoux)
+ * Avoid use of herestrings when reading input. (thanks @rbuzatu90)
+ * Discard base64 padding (`=` characters) in OTP secrets.
+
+In addition, thanks to @endgame and @brainstorm for their contributions to the
+documentation.
+
 Version 1.1.0 *(2018-03-04)*
 -------------------------------
 

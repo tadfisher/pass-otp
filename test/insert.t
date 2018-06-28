@@ -130,4 +130,13 @@ test_expect_success 'Insert from secret without passfile' '
    echo [[ $("$PASS" show Example/alice@google.com) == "$uri" ]]
 '
 
+test_expect_success 'Tolerates padding in secret' '
+  secret="JBSWY3DPEHPK3PXP=="
+  uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+
+  test_pass_init &&
+  "$PASS" otp insert -s -i Example -a alice@google.com <<< "$secret" &&
+  echo [[ $("$PASS" show Example/alice@google.com) == "$uri" ]]
+'
+
 test_done

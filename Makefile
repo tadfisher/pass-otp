@@ -28,6 +28,7 @@ uninstall:
 
 lint:
 	shellcheck -s bash $(PROG).bash
+	$(MAKE) -C test lint
 
 test:
 	$(MAKE) -C test

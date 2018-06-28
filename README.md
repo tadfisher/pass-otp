@@ -1,4 +1,8 @@
-[![Build Status](https://travis-ci.org/tadfisher/pass-otp.svg?branch=master)](https://travis-ci.org/tadfisher/pass-otp)
+
+| Branch | Status |
+|--------|--------|
+| [**master**](https://github.com/tadfisher/pass-otp/tree/master) | [![Build Status: master](https://travis-ci.org/tadfisher/pass-otp.svg?branch=master)](https://travis-ci.org/tadfisher/pass-otp) |
+| [**develop**](https://github.com/tadfisher/pass-otp/tree/develop) | [![Build Status: develop](https://travis-ci.org/tadfisher/pass-otp.svg?branch=develop)](https://travis-ci.org/tadfisher/pass-otp) |
 
 # pass-otp
 
@@ -54,7 +58,7 @@ Enter otpauth:// URI for totp-secret: otpauth://totp/totp-secret?secret=AAAAAAAA
 Pipe an `otpauth://` URI into a passfile:
 
 ```
-$ cat totp-secret.txt | pass otp insert totp-secret
+$ pass otp insert totp-secret < totp-secret.txt
 ```
 
 Use [zbar](http://zbar.sourceforge.net/) to decode a QR image into a passfile:
@@ -119,6 +123,32 @@ sudo make install
 pacman -S pass-otp
 ```
 
+### NixOS
+
+- `configuration.nix`
+
+System-wide:
+
+```nix
+{
+  environment.systemPackages = [ pkgs.pass-otp ];
+}
+```
+
+Per-user:
+
+```nix
+{
+  users.users."name".packages = [ pkgs.pass-otp ];
+}
+```
+
+- Imperative
+
+```
+nix-env -i pass-otp
+```
+
 ### macOS
 
 ```
@@ -133,6 +163,16 @@ make install PREFIX=/usr/local
 - `pass` 1.7.0 or later for extension support
 - `oathtool` for generating 2FA codes
 - `qrencode` for generating QR code images
+
+### Build requirements
+
+- `make test`
+  - `pass` >= 1.7.0
+  - `git`
+  - `oathtool`
+  - `expect`
+- `make lint`
+  - `shellcheck`
 
 ## Migrating from pass-otp 0.1
 
@@ -170,21 +210,14 @@ Note that the following default values do not need to be specified in the URI:
 | period    | 30      |
 | digits    | 6       |
 
-## License
+## Migrating from Google Authenticator
 
-```
-Copyright (C) 2017 Tad Fisher
+**Warning:** This method is provided as a means to transport your TOTP tokens to
+other devices, disconnected from your single factor authentication part. If you
+add those secrets into the same basket of eggs, you will be defeating the whole
+purpose of the [multi factor
+authentication](https://en.wikipedia.org/wiki/Multi-factor_authentication)
+mantra. Please think it through before running this migration.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-```
+If you read the warning paragraph above, [keep calm and move on with the
+migration](https://github.com/tadfisher/pass-otp/wiki/How-to-migrate-your-Google-Authenticator-database-to-pass-otp%3F).
