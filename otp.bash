@@ -61,7 +61,7 @@ otp_parse_uri() {
 
   local p=${BASH_REMATCH[7]}
   local params
-  local IFS=\&; read -r -a params <<< "$p"; unset IFS
+  local IFS=\&; read -r -a params < <(echo "$p") ; unset IFS
 
   pattern='^(.+)=(.+)$'
   for param in "${params[@]}"; do
@@ -138,7 +138,7 @@ otp_insert() {
   mkdir -p -v "$PREFIX/$(dirname "$path")"
   set_gpg_recipients "$(dirname "$path")"
 
-  $GPG -e "${GPG_RECIPIENT_ARGS[@]}" -o "$passfile" "${GPG_OPTS[@]}" <<<"$contents" || die "OTP secret encryption aborted."
+  echo "$contents" | $GPG -e "${GPG_RECIPIENT_ARGS[@]}" -o "$passfile" "${GPG_OPTS[@]}" || die "OTP secret encryption aborted."
 
   git_add_file "$passfile" "$message"
 }
@@ -289,7 +289,7 @@ cmd_otp_append() {
       [[ "$line" == otpauth://* ]] && line="$otp_uri"
       [[ -n "$replaced" ]] && replaced+=$'\n'
       replaced+="$line"
-    done <<< "$contents"
+    done < <(echo "$contents")
   else
     replaced="$contents"$'\n'"$otp_uri"
   fi
@@ -329,7 +329,7 @@ cmd_otp_code() {
       otp_parse_uri "$line"
       break
     fi
-  done <<< "$contents"
+  done < <(echo "$contents")
 
   local cmd
   case "$otp_type" in
@@ -362,7 +362,7 @@ cmd_otp_code() {
       [[ "$line" == otpauth://* ]] && line="$uri"
       [[ -n "$replaced" ]] && replaced+=$'\n'
       replaced+="$line"
-    done <<< "$contents"
+    done < <(echo "$contents")
 
     otp_insert "$path" "$passfile" "$replaced" "Increment HOTP counter for $path."
   fi
@@ -398,7 +398,7 @@ cmd_otp_uri() {
       otp_parse_uri "$line"
       break
     fi
-  done <<< "$contents"
+  done < <(echo "$contents")
 
   if [[ $clip -eq 1 ]]; then
     clip "$otp_uri" "OTP key URI for $path"
