@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # []
 
-VERSION="1.1.0"
+VERSION="1.1.1"
 OATH=$(which oathtool)
 
 ## source:  https://gist.github.com/cdown/1163649
