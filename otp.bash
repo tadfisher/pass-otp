@@ -63,7 +63,7 @@ otp_parse_uri() {
   local params
   local IFS=\&; read -r -a params < <(echo "$p") ; unset IFS
 
-  pattern='^(.+)=(.+)$'
+  pattern='^([^=]+)=(.+)$'
   for param in "${params[@]}"; do
     if [[ "$param" =~ $pattern ]]; then
       case ${BASH_REMATCH[1]} in
