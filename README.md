@@ -123,6 +123,12 @@ sudo make install
 pacman -S pass-otp
 ```
 
+### Gentoo Linux
+
+```
+emerge app-admin/pass-otp
+```
+
 ### NixOS
 
 - `configuration.nix`
