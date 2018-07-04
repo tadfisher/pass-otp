@@ -158,6 +158,12 @@ cd pass-otp
 make install PREFIX=/usr/local
 ```
 
+### openSUSE
+
+```
+zypper install pass-otp
+```
+
 ## Requirements
 
 - `pass` 1.7.0 or later for extension support
