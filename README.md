@@ -156,12 +156,17 @@ nix-env -i pass-otp
 ```
 
 ### macOS
-
+#### Brew
 ```
 brew install oath-toolkit
 git clone https://github.com/tadfisher/pass-otp
 cd pass-otp
 make install PREFIX=/usr/local
+```
+
+#### Macports.org
+```
+sudo port install pass-otp
 ```
 
 ### openSUSE
