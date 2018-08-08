@@ -195,7 +195,7 @@ cmd_otp_version() {
 
 cmd_otp_insert() {
   local opts force=0 echo=0 from_secret=0
-  opts="$($GETOPT -o fesi:a: -l force,echo,secret,issuer:,account: -n "$PROGRAM" -- "$@")"
+  opts="$($GETOPT -o fesi:a:p: -l force,echo,secret,issuer:,account:,path: -n "$PROGRAM" -- "$@")"
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
@@ -204,10 +204,11 @@ cmd_otp_insert() {
     -s|--secret) from_secret=1; shift;;
     -i|--issuer) issuer=$2; shift; shift;;
     -a|--account) account=$2;  shift; shift;;
+    -p|--path) path_prefix=$2;  shift; shift;;
     --) shift; break ;;
   esac done
 
-  [[ $err -ne 0 ]] && die "Usage: $PROGRAM $COMMAND insert [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i issuer] [--account,-a account] [pass-name]"
+  [[ $err -ne 0 ]] && die "Usage: $PROGRAM $COMMAND insert [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i issuer] [--account,-a account] [--path,-p path] [pass-name]"
 
   local prompt path uri
   if [[ $# -eq 1 ]]; then
@@ -231,6 +232,9 @@ cmd_otp_insert() {
   if [[ -z "$path" ]]; then
     [[ -n "$otp_issuer" ]] && path+="$otp_issuer/"
     path+="$otp_accountname"
+    if [ -n "$path_prefix" ]; then
+      path="${path_prefix%/}/$path"
+    fi
     yesno "Insert into $path?"
   fi
 
