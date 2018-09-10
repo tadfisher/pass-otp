@@ -242,7 +242,7 @@ cmd_otp_insert() {
 
 cmd_otp_append() {
   local opts force=0 echo=0 from_secret=0
-  opts="$($GETOPT -o fesi:a: -l force,echo,secret,issuer:account: -n "$PROGRAM" -- "$@")"
+  opts="$($GETOPT -o fesi:a: -l force,echo,secret,issuer:,account: -n "$PROGRAM" -- "$@")"
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
