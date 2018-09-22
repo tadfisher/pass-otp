@@ -125,7 +125,8 @@ pacman -S pass-otp
 
 ### Debian
 
-`pass-otp` is available in `testing` and `sid` repositories with the package-name `pass-extension-otp` according to [tracker](https://tracker.debian.org/pkg/pass-otp):
+`pass-otp` is available in `buster` and `sid` repositories with the package-name `pass-extension-otp` according to [tracker](https://tracker.debian.org/pkg/pass-otp):
+
 ```
 apt install pass-extension-otp
 ```
