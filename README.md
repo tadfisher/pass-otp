@@ -183,6 +183,19 @@ sudo port install pass-otp
 zypper install pass-otp
 ```
 
+### Crux Linux
+pass-otp in this port
+
+```
+#/etc/ports/mk.httpup
+# MK ports collection
+#
+# https://github.com/beli3ver/crux-ports/
+
+ROOT_DIR=/usr/ports/mk
+URL=https://raw.githubusercontent.com/beli3ver/crux-ports/master/
+```
+
 ## Requirements
 
 - `pass` 1.7.0 or later for extension support
