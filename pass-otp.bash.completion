@@ -1,0 +1,26 @@
+PASSWORD_STORE_EXTENSION_COMMANDS+=(otp)
+
+__password_store_extension_complete_otp() {
+  if [[ $COMP_CWORD -gt 2 ]]; then
+    case "${COMP_WORDS[2]}" in
+      insert|append)
+        COMPREPLY+=($(compgen -W "-e --echo -f --force -s --secret -i --issuer -a --account" -- ${cur}))
+        _pass_complete_entries
+        ;;
+      uri)
+        COMPREPLY+=($(compgen -W "-c --clip -q --qrcode" -- ${cur}))
+        _pass_complete_entries
+        ;;
+      validate)
+        _pass_complete_entries
+        ;;
+      *)
+        COMPREPLY+=($(compgen -W "-h --help" -- ${cur}))
+        _pass_complete_entries
+        ;;
+    esac
+  else
+      COMPREPLY+=($(compgen -W "insert append uri validate -h --help -c --clip" -- ${cur}))
+      _pass_complete_entries 1
+  fi
+}
