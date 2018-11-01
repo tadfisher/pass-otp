@@ -166,10 +166,10 @@ nix-env -i pass-otp
 ### macOS
 #### Brew
 ```
-brew install oath-toolkit
+brew install oath-toolkit bash-completion
 git clone https://github.com/tadfisher/pass-otp
 cd pass-otp
-make install PREFIX=/usr/local
+make install PREFIX=/usr/local BASHCOMPDIR=/usr/local/etc/bash_completion.d
 ```
 
 #### Macports.org
