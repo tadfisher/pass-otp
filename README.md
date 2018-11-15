@@ -137,31 +137,17 @@ apt install pass-extension-otp
 emerge app-admin/pass-otp
 ```
 
-### NixOS
+### Nix/NixOS
 
-- `configuration.nix`
-
-System-wide:
+The following expression builds `pass` with the `pass-otp` extension:
 
 ```nix
-{
-  environment.systemPackages = [ pkgs.pass-otp ];
-}
+with pkgs;
+pass.withExtensions (exts: [ exts.pass-otp ])
 ```
 
-Per-user:
-
-```nix
-{
-  users.users."name".packages = [ pkgs.pass-otp ];
-}
-```
-
-- Imperative
-
-```
-nix-env -i pass-otp
-```
+The above can be installed imperatively via `nix-env` or ran in a temprorary
+environment via `nix-shell`.
 
 ### macOS
 #### Brew
