@@ -1,6 +1,14 @@
 Change Log
 =============
 
+Version 1.2.0 *(2018-11-15)*
+-------------------------------
+
+* New: Bash completion is now supported. (thanks Zoltan Kertesz)
+* Fix getopt parsing; passing `--issuer` and `--account` should no longer hang.
+  (thanks @xPMo)
+
+
 Version 1.1.1 *(2018-06-28)*
 -------------------------------
 
