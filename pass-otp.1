@@ -39,7 +39,8 @@ seconds. This command is alternatively named \fBshow\fP.
 .TP
 \fBotp insert\fP [ \fI--force\fP, \fI-f\fP ] [ \fI--echo\fP, \fI-e\fP ] \
 [ [ \fI--secret\fP, \fI-s\fP ] [ \fI--issuer\fP, \fI-i\fP \fIissuer\fP ] \
-[ \fI--account\fP, \fI-a\fP \fIaccount\fP ] ] [ \fIpass-name\fP ]
+[ \fI--account\fP, \fI-a\fP \fIaccount\fP ] [ \fI--path\fP, \fI-p\fP \fIpath-name\fP ] ] \
+[ \fIpass-name\fP ]
 
 Prompt for and insert a new OTP secret into the password store at
 \fIpass-name\fP.
@@ -59,6 +60,8 @@ convert the \fIissuer:accountname\fP URI label to a path in the form of
 \fIisser/accountname\fP. Prompt before overwriting an existing secret, unless
 \fI--force\fP or \fI-f\fP is specified. This command is alternatively named
 \fBadd\fP.
+
+\fI--path\fP specifies a path prefix to the generated path from the URI label.
 
 .TP
 \fBotp append\fP [ \fI--force\fP, \fI-f\fP ] [ \fI--echo\fP, \fI-e\fP ] \

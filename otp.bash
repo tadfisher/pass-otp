@@ -152,7 +152,7 @@ Usage:
         If put on the clipboard, it will be cleared in $CLIP_TIME seconds.
 
     $PROGRAM otp insert [--force,-f] [--echo,-e]
-            [[--secret, -s] [--issuer,-i issuer] [--account,-a account]]
+            [[--secret, -s] [--issuer,-i issuer] [--account,-a account] [--path,-p path-name]]
             [pass-name]
         Prompt for and insert a new OTP key.
 
@@ -208,7 +208,7 @@ cmd_otp_insert() {
     --) shift; break ;;
   esac done
 
-  [[ $err -ne 0 ]] && die "Usage: $PROGRAM $COMMAND insert [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i issuer] [--account,-a account] [--path,-p path] [pass-name]"
+  [[ $err -ne 0 ]] && die "Usage: $PROGRAM $COMMAND insert [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i issuer] [--account,-a account] [--path,-p path-name] [pass-name]"
 
   local prompt path uri
   if [[ $# -eq 1 ]]; then
