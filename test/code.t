@@ -15,7 +15,7 @@ test_expect_success 'Generates TOTP code' '
 
   test_pass_init &&
   "$PASS" otp insert passfile <<< "$uri" &&
-  code=$("$PASS" otp passfile) &&
+  code=$("$PASS" otp passfile | head -n 1) &&
   [[ ${#code} -eq 6 ]]
 '
 
