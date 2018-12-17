@@ -78,6 +78,7 @@ Generate a 2FA code using this token:
 ```
 $ pass otp totp-secret
 698816
+Expires in 26 seconds
 ```
 
 Display a QR code for an OTP token:

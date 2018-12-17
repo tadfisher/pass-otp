@@ -334,9 +334,11 @@ cmd_otp_code() {
   local cmd
   case "$otp_type" in
     totp)
+      curr_time=$(date +%s)
+      totp_time_remaining=$((30 - ($curr_time % 30)))
       cmd="$OATH -b --totp"
       [[ -n "$otp_algorithm" ]] && cmd+=$(echo "=${otp_algorithm}"|tr "[:upper:]" "[:lower:]")
-      [[ -n "$otp_period" ]] && cmd+=" --time-step-size=$otp_period"s
+      [[ -n "$otp_period" ]] && cmd+=" --time-step-size=$otp_period"s && totp_time_remaining=$(($otp_period - ($curr_time % $otp_period)))
       [[ -n "$otp_digits" ]] && cmd+=" --digits=$otp_digits"
       cmd+=" $otp_secret"
       ;;
@@ -369,8 +371,10 @@ cmd_otp_code() {
 
   if [[ $clip -ne 0 ]]; then
     clip "$out" "OTP code for $path"
+    [[ -n "$totp_time_remaining" ]] && echo "Expires in $totp_time_remaining seconds"
   else
     echo "$out"
+    [[ -n "$totp_time_remaining" ]] && echo "Expires in $totp_time_remaining seconds"
   fi
 }
 
