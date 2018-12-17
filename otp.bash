@@ -335,10 +335,10 @@ cmd_otp_code() {
   case "$otp_type" in
     totp)
       curr_time=$(date +%s)
-      totp_time_remaining=$((30 - ($curr_time % 30)))
+      totp_time_remaining=$((30 - (curr_time % 30)))
       cmd="$OATH -b --totp"
       [[ -n "$otp_algorithm" ]] && cmd+=$(echo "=${otp_algorithm}"|tr "[:upper:]" "[:lower:]")
-      [[ -n "$otp_period" ]] && cmd+=" --time-step-size=$otp_period"s && totp_time_remaining=$(($otp_period - ($curr_time % $otp_period)))
+      [[ -n "$otp_period" ]] && cmd+=" --time-step-size=$otp_period"s && totp_time_remaining=$((otp_period - (curr_time % otp_period)))
       [[ -n "$otp_digits" ]] && cmd+=" --digits=$otp_digits"
       cmd+=" $otp_secret"
       ;;
