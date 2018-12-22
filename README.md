@@ -152,10 +152,7 @@ environment via `nix-shell`.
 ### macOS
 #### Brew
 ```
-brew install oath-toolkit bash-completion
-git clone https://github.com/tadfisher/pass-otp
-cd pass-otp
-make install PREFIX=$(brew --prefix) BASHCOMPDIR=$(brew --prefix)/etc/bash_completion.d
+brew install pass-otp
 ```
 
 #### Macports.org
