@@ -133,4 +133,14 @@ EOF
   [[ $("$PASS" show passfile) == "$expected" ]]
 '
 
+test_expect_success 'Keep original password' '
+  existing="foo bar baz"
+  uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Foo"
+
+  test_pass_init &&
+  "$PASS" insert -e passfile <<< "$existing" &&
+  "$PASS" otp append -e passfile <<< "$uri" &&
+  [[ $("$PASS" show passfile | head -1) == "$existing" ]]
+'
+
 test_done

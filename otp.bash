@@ -268,7 +268,7 @@ cmd_otp_append() {
   [[ -f $passfile ]] || die "Passfile not found"
 
   local existing contents=""
-  while IFS= read -r line; do
+  while IFS= read -r line || [ -n "$line" ]; do
     [[ -z "$existing" && "$line" == otpauth://* ]] && existing="$line"
     [[ -n "$contents" ]] && contents+=$'\n'
     contents+="$line"
