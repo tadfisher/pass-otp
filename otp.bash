@@ -180,6 +180,9 @@ Usage:
         Display the key URI stored in pass-name. Optionally, put it on the
         clipboard, or display a QR code.
 
+    $PROGRAM otp from-uri [--clip,-c] uri
+        Same as code, but takes a URI as argument instead of pass-name.
+
     $PROGRAM otp validate uri
         Test if the given URI is a valid OTP key URI.
 
@@ -307,7 +310,7 @@ cmd_otp_append() {
 cmd_otp_code() {
   [[ -z "$OATH" ]] && die "Failed to generate OTP code: oathtool is not installed."
 
-  local opts clip=0
+  local opts clip=0 otp_from_uri=${otp_from_uri:-0}
   opts="$($GETOPT -o c -l clip -n "$PROGRAM" -- "$@")"
   local err=$?
   eval set -- "$opts"
@@ -318,18 +321,22 @@ cmd_otp_code() {
 
   [[ $err -ne 0 || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND [--clip,-c] pass-name"
 
-  local path="${1%/}"
-  local passfile="$PREFIX/$path.gpg"
-  check_sneaky_paths "$path"
-  [[ ! -f $passfile ]] && die "$path: passfile not found."
+  if [[ $otp_from_uri -ne 1 ]]; then
+      local path="${1%/}"
+      local passfile="$PREFIX/$path.gpg"
+      check_sneaky_paths "$path"
+      [[ ! -f $passfile ]] && die "$path: passfile not found."
 
-  contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
-  while read -r -a line; do
-    if [[ "$line" == otpauth://* ]]; then
-      otp_parse_uri "$line"
-      break
-    fi
-  done < <(echo "$contents")
+      contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
+      while read -r -a line; do
+        if [[ "$line" == otpauth://* ]]; then
+          otp_parse_uri "$line"
+          break
+        fi
+      done < <(echo "$contents")
+  else
+      otp_parse_uri "$1"
+  fi
 
   local cmd
   case "$otp_type" in
@@ -420,6 +427,7 @@ case "$1" in
   append)         shift; cmd_otp_append "$@" ;;
   uri)            shift; cmd_otp_uri "$@" ;;
   validate)       shift; cmd_otp_validate "$@" ;;
+  from-uri)       shift; otp_from_uri=1 cmd_otp_code "$@" ;;
   code|show)      shift; cmd_otp_code "$@" ;;
   *)                     cmd_otp_code "$@" ;;
 esac

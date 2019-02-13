@@ -32,6 +32,9 @@ Usage:
         Display the key URI stored in pass-name. Optionally, put it on the
         clipboard, or display a QR code.
 
+    pass otp from-uri [--clip,-c] uri
+        Same as code, but takes a URI as argument instead of pass-name.
+
     pass otp validate uri
         Test if the given URI is a valid OTP key URI.
 

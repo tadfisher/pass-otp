@@ -11,6 +11,10 @@ __password_store_extension_complete_otp() {
         COMPREPLY+=($(compgen -W "-c --clip -q --qrcode" -- ${cur}))
         _pass_complete_entries
         ;;
+      from-uri)
+        COMPREPLY+=($(compgen -W "-c --clip" -- ${cur}))
+        _pass_complete_entries
+        ;;
       validate)
         _pass_complete_entries
         ;;
