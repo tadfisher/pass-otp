@@ -195,6 +195,9 @@ URL=https://raw.githubusercontent.com/beli3ver/crux-ports/master/
 - `make lint`
   - `shellcheck`
 
+## Browser Support
+[passff](https://github.com/passff/passff) >= 1.6.0 now supports using `pass-otp` to fill login forms.
+
 ## Migrating from pass-otp 0.1
 
 `pass-otp` has switched to storing OTP tokens in the
