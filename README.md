@@ -192,6 +192,7 @@ URL=https://raw.githubusercontent.com/beli3ver/crux-ports/master/
   - `git`
   - `oathtool`
   - `expect`
+  - `make` (GNU make)
 - `make lint`
   - `shellcheck`
 
