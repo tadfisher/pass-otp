@@ -28,13 +28,15 @@ If no COMMAND is specified, COMMAND defaults to \fBcode\fP.
 .SH COMMANDS
 
 .TP
-\fBotp code\fP [ \fI--clip\fP, \fI-c\fP ] \fIpass-name\fP
+\fBotp code\fP [ \fI--clip\fP, \fI-c\fP ] [ \fI--quiet\fP, \fI-q\fP ] \fIpass-name\fP
 
 Generate and print an OTP code from the secret key stored in \fIpass-name\fP
 using \fBoathtool\fP(1). If \fI--clip\fP or \fI-c\fP is specified, do not print
 the code but instead copy it to the clipboard using \fBxclip\fP(1)
 and then restore the clipboard after 45 (or \fIPASSWORD_STORE_CLIP_TIME\fP)
-seconds. This command is alternatively named \fBshow\fP.
+seconds. If \fI--quiet\fP or \fI-q\fP is specified, do not print
+the git update message to standard out. This command is alternatively named
+\fBshow\fP.
 
 .TP
 \fBotp insert\fP [ \fI--force\fP, \fI-f\fP ] [ \fI--echo\fP, \fI-e\fP ] \

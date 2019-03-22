@@ -72,3 +72,8 @@ test_pass_init() {
   rm -rf "$PASSWORD_STORE_DIR"
   "$PASS" init "${KEY[@]}"
 }
+
+test_pass_git_init() {
+    rm -rf "$PASSWORD_STORE_DIR"
+    "$PASS" init "${KEY[@]}" && "$PASS" git init
+}

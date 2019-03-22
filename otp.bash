@@ -130,7 +130,7 @@ otp_read_secret() {
 }
 
 otp_insert() {
-  local path="$1" passfile="$2" contents="$3" message="$4"
+  local path="$1" passfile="$2" contents="$3" message="$4" quiet="$5"
 
   check_sneaky_paths "$path"
   set_git "$passfile"
@@ -140,7 +140,11 @@ otp_insert() {
 
   echo "$contents" | $GPG -e "${GPG_RECIPIENT_ARGS[@]}" -o "$passfile" "${GPG_OPTS[@]}" || die "OTP secret encryption aborted."
 
-  git_add_file "$passfile" "$message"
+  if [[ "$quiet" -eq 1 ]]; then
+    git_add_file "$passfile" "$message" 1>/dev/null
+  else
+    git_add_file "$passfile" "$message"
+  fi
 }
 
 cmd_otp_usage() {
@@ -307,16 +311,17 @@ cmd_otp_append() {
 cmd_otp_code() {
   [[ -z "$OATH" ]] && die "Failed to generate OTP code: oathtool is not installed."
 
-  local opts clip=0
-  opts="$($GETOPT -o c -l clip -n "$PROGRAM" -- "$@")"
+  local opts clip=0 quiet=0
+  opts="$($GETOPT -o cq -l clip,quiet -n "$PROGRAM" -- "$@")"
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
     -c|--clip) clip=1; shift ;;
+    -q|--quiet) quiet=1; shift ;;
     --) shift; break ;;
   esac done
 
-  [[ $err -ne 0 || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND [--clip,-c] pass-name"
+  [[ $err -ne 0 || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND [--clip,-c] [--quiet,-q] pass-name"
 
   local path="${1%/}"
   local passfile="$PREFIX/$path.gpg"
@@ -364,7 +369,7 @@ cmd_otp_code() {
       replaced+="$line"
     done < <(echo "$contents")
 
-    otp_insert "$path" "$passfile" "$replaced" "Increment HOTP counter for $path."
+    otp_insert "$path" "$passfile" "$replaced" "Increment HOTP counter for $path." "$quiet"
   fi
 
   if [[ $clip -ne 0 ]]; then
