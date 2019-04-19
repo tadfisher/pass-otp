@@ -131,6 +131,14 @@ pacman -S pass-otp
 apt install pass-extension-otp
 ```
 
+### Fedora
+
+`pass-otp` is available in Fedora 28 and up, under the package name `pass-otp` according to [Fedora Apps](https://apps.fedoraproject.org/packages/pass-otp).
+
+```
+dnf install pass-otp
+```
+
 ### Gentoo Linux
 
 ```
