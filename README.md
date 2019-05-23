@@ -178,13 +178,12 @@ zypper install pass-otp
 pass-otp in this port
 
 ```
-#/etc/ports/mk.httpup
 # MK ports collection
 #
-# https://github.com/beli3ver/crux-ports/
+# https://git.malte-kiefer.de/crux-ports/
 
 ROOT_DIR=/usr/ports/mk
-URL=https://raw.githubusercontent.com/beli3ver/crux-ports/master/
+URL=https://git.malte-kiefer.de/crux-ports/plain
 ```
 
 ## Requirements
