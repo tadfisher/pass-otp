@@ -73,6 +73,13 @@ The same, but appending to an existing passfile:
 $ zbarimg -q --raw google-qrcode.png | pass otp append google/example@gmail.com
 ```
 
+By throwing [maim](https://github.com/naelstrof/maim) to the mix you can even
+create a passfile directly from a QR code displayed on screen, by selecting it:
+
+```
+$ maim -sk | zbarimg -q --raw - | pass otp insert totp-secret
+```
+
 Generate a 2FA code using this token:
 
 ```
