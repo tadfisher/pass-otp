@@ -117,7 +117,10 @@ sudo make install
 or, to install in the user dir (following the standard XDG base directory paths):
 
 ```
-PREFIX=$XDG_DATA_HOME \
+$ echo $XDG_DATA_HOME
+/home/$USER/.local/share
+
+$ PREFIX=$XDG_DATA_HOME \
     LIBDIR=$PREFIX \
     MANDIR=$XDG_DATA_HOME/man \
     BASHCOMPDIR=$XDG_DATA_HOME/bash-completion.d \
