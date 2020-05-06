@@ -120,6 +120,9 @@ or, to install in the user dir (following the standard XDG base directory paths)
 $ echo $XDG_DATA_HOME
 /home/$USER/.local/share
 
+$ export PASSWORD_STORE_ENABLE_EXTENSIONS=true
+$ export PASSWORD_STORE_EXTENSIONS_DIR=$XDG_DATA_HOME/password-store/extensions
+
 $ PREFIX=$XDG_DATA_HOME \
     LIBDIR=$PREFIX \
     MANDIR=$XDG_DATA_HOME/man \
