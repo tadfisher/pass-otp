@@ -1,4 +1,3 @@
-
 | Branch | Status |
 |--------|--------|
 | [**master**](https://github.com/tadfisher/pass-otp/tree/master) | [![Build Status: master](https://travis-ci.org/tadfisher/pass-otp.svg?branch=master)](https://travis-ci.org/tadfisher/pass-otp) |
@@ -119,6 +118,16 @@ $ pass otp uri -q totp-secret
 git clone https://github.com/tadfisher/pass-otp
 cd pass-otp
 sudo make install
+```
+
+or, to install in the user dir (following the standard XDG base directory paths):
+
+```
+PREFIX=$XDG_DATA_HOME \
+    LIBDIR=$PREFIX \
+    MANDIR=$XDG_DATA_HOME/man \
+    BASHCOMPDIR=$XDG_DATA_HOME/bash-completion.d \
+    make install
 ```
 
 ### Arch Linux
