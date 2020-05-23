@@ -128,11 +128,12 @@ $ echo $XDG_DATA_HOME
 
 $ export PASSWORD_STORE_ENABLE_EXTENSIONS=true
 $ export PASSWORD_STORE_EXTENSIONS_DIR=$XDG_DATA_HOME/password-store/extensions
+$ export BASH_COMPLETION_USER_DIR=$XDG_DATA_HOME/bash-completion/completions
 
 $ PREFIX=$XDG_DATA_HOME \
     LIBDIR=$PREFIX \
     MANDIR=$XDG_DATA_HOME/man \
-    BASHCOMPDIR=$XDG_DATA_HOME/bash-completion.d \
+    BASHCOMPDIR=$BASH_COMPLETION_USER_DIR \
     make install
 ```
 
