@@ -195,7 +195,7 @@ URL=https://git.malte-kiefer.de/crux-ports/plain
 ## Requirements
 
 - `pass` 1.7.0 or later for extension support
-- `oathtool` for generating 2FA codes
+- `oathtool` or `Pass::OTP` for generating 2FA codes
 - `qrencode` for generating QR code images
 
 ### Build requirements
