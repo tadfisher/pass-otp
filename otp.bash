@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # []
 
-VERSION="1.1.1"
+VERSION="1.1.2"
 OATH=$(which oathtool)
+OTPTOOL=$(which otptool)
 
 ## source:  https://gist.github.com/cdown/1163649
 urlencode() {
@@ -326,6 +327,7 @@ cmd_otp_code() {
   contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
   while read -r -a line; do
     if [[ "$line" == otpauth://* ]]; then
+      local uri="$line"
       otp_parse_uri "$line"
       break
     fi
@@ -339,6 +341,7 @@ cmd_otp_code() {
       [[ -n "$otp_period" ]] && cmd+=" --time-step-size=$otp_period"s
       [[ -n "$otp_digits" ]] && cmd+=" --digits=$otp_digits"
       cmd+=" $otp_secret"
+      [[ -n "$OTPTOOL" ]] && cmd="$OTPTOOL $uri"
       ;;
 
     hotp)
@@ -346,6 +349,7 @@ cmd_otp_code() {
       cmd="$OATH -b --hotp --counter=$counter"
       [[ -n "$otp_digits" ]] && cmd+=" --digits=$otp_digits"
       cmd+=" $otp_secret"
+      [[ -n "$OTPTOOL" ]] && cmd="$OTPTOOL $uri"
       ;;
 
     *)
