@@ -30,6 +30,17 @@ test_expect_success 'Generates HOTP code and increments counter' '
   [[ $("$PASS" otp uri passfile) == "$inc" ]]
 '
 
+test_expect_success 'Generates HOTP code quietly' '
+  uri="otpauth://hotp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&counter=10&issuer=Example"
+  inc="otpauth://hotp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&counter=11&issuer=Example"
+
+  test_pass_git_init &&
+  "$PASS" otp insert passfile <<< "$uri" &&
+  code=$("$PASS" otp -q passfile) &&
+  [[ ${#code} -eq 6 ]] &&
+  [[ $("$PASS" otp uri passfile) == "$inc" ]]
+'
+
 test_expect_success 'HOTP counter increments and preserves multiline contents' '
   uri="otpauth://hotp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&counter=10&issuer=Example"
   inc="otpauth://hotp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&counter=11&issuer=Example"

@@ -20,7 +20,7 @@ __password_store_extension_complete_otp() {
         ;;
     esac
   else
-      COMPREPLY+=($(compgen -W "insert append uri validate -h --help -c --clip" -- ${cur}))
+      COMPREPLY+=($(compgen -W "insert append uri validate -h --help -c --clip -q --quiet" -- ${cur}))
       _pass_complete_entries 1
   fi
 }
