@@ -132,7 +132,6 @@ $ export BASH_COMPLETION_USER_DIR=$XDG_DATA_HOME/bash-completion/completions
 
 $ PREFIX=$XDG_DATA_HOME \
     LIBDIR=$PREFIX \
-    MANDIR=$XDG_DATA_HOME/man \
     BASHCOMPDIR=$BASH_COMPLETION_USER_DIR \
     make install
 ```
