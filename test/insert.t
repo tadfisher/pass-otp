@@ -139,4 +139,22 @@ test_expect_success 'Tolerates padding in secret' '
   echo [[ $("$PASS" show Example/alice@google.com) == "$uri" ]]
 '
 
+test_expect_success 'Allow path prefixes in insert' '
+  secret="JBSWY3DPEHPK3PXP=="
+  uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+
+  test_pass_init &&
+  "$PASS" otp insert -s -p totp -i Example -a alice@google.com <<< "$secret" &&
+  echo [[ $("$PASS" show totp/Example/alice@google.com) == "$uri" ]]
+'
+
+test_expect_success 'Allow multiple levels in path prefix' '
+  secret="JBSWY3DPEHPK3PXP=="
+  uri="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+
+  test_pass_init &&
+  "$PASS" otp insert -s -p totp/pass-test -i Example -a alice@google.com <<< "$secret" &&
+  echo [[ $("$PASS" show totp/pass-test/Example/alice@google.com) == "$uri" ]]
+'
+
 test_done

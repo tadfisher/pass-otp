@@ -60,10 +60,16 @@ Pipe an `otpauth://` URI into a passfile:
 $ pass otp insert totp-secret < totp-secret.txt
 ```
 
-Use [zbar](http://zbar.sourceforge.net/) to decode a QR image into a passfile:
+Use [zbar](http://zbar.sourceforge.net/) to decode a QR image or webcam shot into a passfile:
 
 ```
 $ zbarimg -q --raw qrcode.png | pass otp insert totp-secret
+```
+
+To use your webcam:
+
+```
+$ zbarcam -q --raw | pass otp insert totp-secret
 ```
 
 The same, but appending to an existing passfile:
@@ -146,6 +152,14 @@ pacman -S pass-otp
 apt install pass-extension-otp
 ```
 
+### Fedora
+
+`pass-otp` is available in Fedora 28 and up, under the package name `pass-otp` according to [Fedora Apps](https://apps.fedoraproject.org/packages/pass-otp).
+
+```
+dnf install pass-otp
+```
+
 ### Gentoo Linux
 
 ```
@@ -185,19 +199,18 @@ zypper install pass-otp
 pass-otp in this port
 
 ```
-#/etc/ports/mk.httpup
 # MK ports collection
 #
-# https://github.com/beli3ver/crux-ports/
+# https://git.malte-kiefer.de/crux-ports/
 
 ROOT_DIR=/usr/ports/mk
-URL=https://raw.githubusercontent.com/beli3ver/crux-ports/master/
+URL=https://git.malte-kiefer.de/crux-ports/plain
 ```
 
 ## Requirements
 
 - `pass` 1.7.0 or later for extension support
-- `oathtool` for generating 2FA codes
+- `oathtool` or `Pass::OTP` for generating 2FA codes
 - `qrencode` for generating QR code images
 
 ### Build requirements
@@ -207,8 +220,12 @@ URL=https://raw.githubusercontent.com/beli3ver/crux-ports/master/
   - `git`
   - `oathtool`
   - `expect`
+  - `make` (GNU make)
 - `make lint`
   - `shellcheck`
+
+## Browser Support
+[passff](https://github.com/passff/passff) >= 1.6.0 now supports using `pass-otp` to fill login forms.
 
 ## Migrating from pass-otp 0.1
 
