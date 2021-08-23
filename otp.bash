@@ -17,16 +17,16 @@
 # []
 
 VERSION="1.1.2"
-OATH=$(which oathtool)
-OTPTOOL=$(which otptool)
+OATH=$(command -v oathtool)
+OTPTOOL=$(command -v otptool)
 
 ## source:  https://gist.github.com/cdown/1163649
 urlencode() {
   local l=${#1}
   for (( i = 0 ; i < l ; i++ )); do
     local c=${1:i:1}
-    case "$c" in
-      [a-zA-Z0-9.~_-]) printf "%c" "$c";;
+    case $c in
+      [a-zA-Z0-9.~_-]) printf "%c" "$c" ;;
       ' ') printf + ;;
       *) printf '%%%.2X' "'$c"
     esac
@@ -36,7 +36,7 @@ urlencode() {
 urldecode() {
   # urldecode <string>
 
-  local url_encoded="${1//+/ }"
+  local url_encoded=${1//+/ }
   printf '%b' "${url_encoded//%/\\x}"
 }
 
@@ -44,13 +44,13 @@ urldecode() {
 # Vars are consumed by caller
 # shellcheck disable=SC2034
 otp_parse_uri() {
-  local uri="$1"
+  local uri=$1
 
-  uri="${uri//\`/%60}"
-  uri="${uri//\"/%22}"
+  uri=${uri//\`/%60}
+  uri=${uri//\"/%22}
 
   local pattern='^otpauth:\/\/(totp|hotp)(\/(([^:?]+)?(:([^:?]*))?)(:([0-9]+))?)?\?(.+)$'
-  [[ "$uri" =~ $pattern ]] || die "Cannot parse OTP key URI: $uri"
+  [[ $uri =~ $pattern ]] || die "Cannot parse OTP key URI: $uri"
 
   otp_uri=${BASH_REMATCH[0]}
   otp_type=${BASH_REMATCH[1]}
@@ -66,7 +66,7 @@ otp_parse_uri() {
 
   pattern='^([^=]+)=(.+)$'
   for param in "${params[@]}"; do
-    if [[ "$param" =~ $pattern ]]; then
+    if [[ $param =~ $pattern ]]; then
       case ${BASH_REMATCH[1]} in
         secret) otp_secret=${BASH_REMATCH[2]} ;;
         digits) otp_digits=${BASH_REMATCH[2]} ;;
@@ -79,14 +79,14 @@ otp_parse_uri() {
     fi
   done
 
-  [[ -z "$otp_secret" ]] && die "Invalid key URI (missing secret): $otp_uri"
+  [[ -z $otp_secret ]] && die "Invalid key URI (missing secret): $otp_uri"
 
   pattern='^[0-9]+$'
-  [[ "$otp_type" == 'hotp' ]] && [[ ! "$otp_counter" =~ $pattern ]] && die "Invalid key URI (missing counter): $otp_uri"
+  [[ $otp_type == 'hotp' ]] && [[ ! $otp_counter =~ $pattern ]] && die "Invalid key URI (missing counter): $otp_uri"
 }
 
 otp_read_uri() {
-  local uri prompt="$1" echo="$2"
+  local uri prompt=$1 echo=$2
 
   if [[ -t 0 ]]; then
     if [[ $echo -eq 0 ]]; then
@@ -94,7 +94,7 @@ otp_read_uri() {
       echo
       read -r -p "Retype otpauth:// URI for $prompt: " -s uri_again || exit 1
       echo
-      [[ "$uri" == "$uri_again" ]] || die "Error: the entered URIs do not match."
+      [[ $uri == "$uri_again" ]] || die "Error: the entered URIs do not match."
     else
       read -r -p "Enter otpauth:// URI for $prompt: " -e uri
     fi
@@ -106,10 +106,10 @@ otp_read_uri() {
 }
 
 otp_read_secret() {
-  local uri prompt="$1" echo="$2" issuer accountname separator
-  [ ! "$3" = false ] && issuer="$(urlencode "$3")"
-  [ ! "$4" = false ] && accountname="$(urlencode "$4")"
-  [ -n "$issuer" ] && [ -n "$accountname" ] && separator=":"
+  local uri prompt=$1 echo=$2 issuer accountname separator
+  [[ $3 != "false" ]] && issuer=$(urlencode "$3")
+  [[ $4 != "false" ]] && accountname=$(urlencode "$4")
+  [[ -n $issuer && -n $accountname ]] && separator=":"
 
   if [[ -t 0 ]]; then
     if [[ $echo -eq 0 ]]; then
@@ -117,7 +117,7 @@ otp_read_secret() {
       echo
       read -r -p "Retype secret for $prompt: " -s secret_again || exit 1
       echo
-      [[ "$secret" == "$secret_again" ]] || die "Error: the entered secrets do not match."
+      [[ $secret == "$secret_again" ]] || die "Error: the entered secrets do not match."
     else
         read -r -p "Enter secret for $prompt: " -e secret
     fi
@@ -126,12 +126,12 @@ otp_read_secret() {
   fi
 
   uri="otpauth://totp/${issuer}${separator}${accountname}?secret=${secret}"
-  [ -n "$issuer" ] && uri="${uri}&issuer=${issuer}"
+  [[ -n $issuer ]] && uri="${uri}&issuer=${issuer}"
   otp_parse_uri "$uri"
 }
 
 otp_insert() {
-  local path="$1" passfile="$2" contents="$3" message="$4" quiet="$5"
+  local path=$1 passfile=$2 contents=$3 message=$4 quiet=$5
 
   check_sneaky_paths "$path"
   set_git "$passfile"
@@ -141,7 +141,7 @@ otp_insert() {
 
   echo "$contents" | $GPG -e "${GPG_RECIPIENT_ARGS[@]}" -o "$passfile" "${GPG_OPTS[@]}" || die "OTP secret encryption aborted."
 
-  if [[ "$quiet" -eq 1 ]]; then
+  if [[ $quiet -eq 1 ]]; then
     git_add_file "$passfile" "$message" 1>/dev/null
   else
     git_add_file "$passfile" "$message"
@@ -194,22 +194,22 @@ _EOF
 }
 
 cmd_otp_version() {
-  echo $VERSION
+  echo "$VERSION"
   exit 0
 }
 
 cmd_otp_insert() {
   local opts force=0 echo=0 from_secret=0
-  opts="$($GETOPT -o fesi:a:p: -l force,echo,secret,issuer:,account:,path: -n "$PROGRAM" -- "$@")"
+  opts=$($GETOPT -o fesi:a:p: -l force,echo,secret,issuer:,account:,path: -n "$PROGRAM" -- "$@")
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
     -f|--force) force=1; shift ;;
     -e|--echo) echo=1; shift ;;
-    -s|--secret) from_secret=1; shift;;
-    -i|--issuer) issuer=$2; shift; shift;;
-    -a|--account) account=$2;  shift; shift;;
-    -p|--path) path_prefix=$2;  shift; shift;;
+    -s|--secret) from_secret=1; shift ;;
+    -i|--issuer) issuer=$2; shift; shift ;;
+    -a|--account) account=$2; shift; shift ;;
+    -p|--path) path_prefix=$2; shift; shift ;;
     --) shift; break ;;
   esac done
 
@@ -217,27 +217,27 @@ cmd_otp_insert() {
 
   local prompt path uri
   if [[ $# -eq 1 ]]; then
-    path="${1%/}"
-    prompt="$path"
+    path=${1%/}
+    prompt=$path
   else
     prompt="this token"
   fi
 
   if [[ $from_secret -eq 1 ]]; then
-    [ -z "$issuer" ] && issuer=false
-    [ -z "$account" ] && account=false
+    [[ -z $issuer ]] && issuer=false
+    [[ -z $account ]] && account=false
 
-    [ "$issuer" = false ] && [ "$account" = false ] && die "Missing one of either '--issuer' or '--account'"
+    [[ $issuer == "false" && $account == "false" ]] && die "Missing one of either '--issuer' or '--account'"
 
     otp_read_secret "$prompt" $echo "$issuer" "$account"
   else
     otp_read_uri "$prompt" $echo
   fi
 
-  if [[ -z "$path" ]]; then
-    [[ -n "$otp_issuer" ]] && path+="$otp_issuer/"
+  if [[ -z $path ]]; then
+    [[ -n $otp_issuer ]] && path+="$otp_issuer/"
     path+="$otp_accountname"
-    if [ -n "$path_prefix" ]; then
+    if [[ -n $path_prefix ]]; then
       path="${path_prefix%/}/$path"
     fi
     yesno "Insert into $path?"
@@ -251,41 +251,41 @@ cmd_otp_insert() {
 
 cmd_otp_append() {
   local opts force=0 echo=0 from_secret=0
-  opts="$($GETOPT -o fesi:a: -l force,echo,secret,issuer:,account: -n "$PROGRAM" -- "$@")"
+  opts=$($GETOPT -o fesi:a: -l force,echo,secret,issuer:,account: -n "$PROGRAM" -- "$@")
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
     -f|--force) force=1; shift ;;
     -e|--echo) echo=1; shift ;;
-    -s|--secret) from_secret=1; shift;;
-    -i|--issuer) issuer=$2; shift; shift;;
-    -a|--account) account=$2;  shift; shift;;
+    -s|--secret) from_secret=1; shift ;;
+    -i|--issuer) issuer=$2; shift; shift ;;
+    -a|--account) account=$2; shift; shift ;;
     --) shift; break ;;
   esac done
 
   [[ $err -ne 0 || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND append [--force,-f] [--echo,-e] [--secret, -s] [--issuer,-i issuer] [--account,-a account] pass-name"
 
   local uri
-  local path="${1%/}"
-  local prompt="$path"
+  local path=${1%/}
+  local prompt=$path
   local passfile="$PREFIX/$path.gpg"
 
   [[ -f $passfile ]] || die "Passfile not found"
 
   local existing contents=""
-  while IFS= read -r line || [ -n "$line" ]; do
-    [[ -z "$existing" && "$line" == otpauth://* ]] && existing="$line"
-    [[ -n "$contents" ]] && contents+=$'\n'
+  while IFS= read -r line || [[ -n $line ]]; do
+    [[ -z $existing && $line == otpauth://* ]] && existing=$line
+    [[ -n $contents ]] && contents+=$'\n'
     contents+="$line"
   done < <($GPG -d "${GPG_OPTS[@]}" "$passfile")
 
-  [[ -n "$existing" ]] && yesno "An OTP secret already exists for $path. Overwrite it?"
+  [[ -n $existing ]] && yesno "An OTP secret already exists for $path. Overwrite it?"
 
   if [[ $from_secret -eq 1 ]]; then
-    [ -z "$issuer" ] && issuer=false
-    [ -z "$account" ] && account=false
+    [[ -z $issuer ]] && issuer=false
+    [[ -z $account ]] && account=false
 
-    [ "$issuer" = false ] && [ "$account" = false ] && die "Missing one of either '--issuer' or '--account'"
+    [[ $issuer == "false" && $account == "false" ]] && die "Missing one of either '--issuer' or '--account'"
 
     otp_read_secret "$prompt" $echo "$issuer" "$account"
   else
@@ -293,10 +293,10 @@ cmd_otp_append() {
   fi
 
   local replaced
-  if [[ -n "$existing" ]]; then
+  if [[ -n $existing ]]; then
     while IFS= read -r line; do
-      [[ "$line" == otpauth://* ]] && line="$otp_uri"
-      [[ -n "$replaced" ]] && replaced+=$'\n'
+      [[ $line == otpauth://* ]] && line=$otp_uri
+      [[ -n $replaced ]] && replaced+=$'\n'
       replaced+="$line"
     done < <(echo "$contents")
   else
@@ -304,7 +304,7 @@ cmd_otp_append() {
   fi
 
   local message
-  if [[ -n "$existing" ]]; then
+  if [[ -n $existing ]]; then
     message="Replace OTP secret for $path."
   else
     message="Append OTP secret for $path."
@@ -314,10 +314,10 @@ cmd_otp_append() {
 }
 
 cmd_otp_code() {
-  [[ -z "$OATH" ]] && die "Failed to generate OTP code: oathtool is not installed."
+  [[ -z $OATH ]] && die "Failed to generate OTP code: oathtool is not installed."
 
   local opts clip=0 quiet=0
-  opts="$($GETOPT -o cq -l clip,quiet -n "$PROGRAM" -- "$@")"
+  opts=$($GETOPT -o cq -l clip,quiet -n "$PROGRAM" -- "$@")
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
@@ -328,37 +328,37 @@ cmd_otp_code() {
 
   [[ $err -ne 0 || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND [--clip,-c] [--quiet,-q] pass-name"
 
-  local path="${1%/}"
+  local path=${1%/}
   local passfile="$PREFIX/$path.gpg"
   check_sneaky_paths "$path"
   [[ ! -f $passfile ]] && die "$path: passfile not found."
 
   contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
   while read -r line; do
-    if [[ "$line" == otpauth://* ]]; then
-      local uri="$line"
+    if [[ $line == otpauth://* ]]; then
+      local uri=$line
       otp_parse_uri "$line"
       break
     fi
   done < <(echo "$contents")
 
   local cmd
-  case "$otp_type" in
+  case $otp_type in
     totp)
       cmd="$OATH -b --totp"
-      [[ -n "$otp_algorithm" ]] && cmd+=$(echo "=${otp_algorithm}"|tr "[:upper:]" "[:lower:]")
-      [[ -n "$otp_period" ]] && cmd+=" --time-step-size=$otp_period"s
-      [[ -n "$otp_digits" ]] && cmd+=" --digits=$otp_digits"
+      [[ -n $otp_algorithm ]] && cmd+=$(echo "=${otp_algorithm}" | tr "[:upper:]" "[:lower:]")
+      [[ -n $otp_period ]] && cmd+=" --time-step-size=$otp_period"s
+      [[ -n $otp_digits ]] && cmd+=" --digits=$otp_digits"
       cmd+=" $otp_secret"
-      [[ -n "$OTPTOOL" ]] && cmd="$OTPTOOL $uri"
+      [[ -n $OTPTOOL ]] && cmd="$OTPTOOL $uri"
       ;;
 
     hotp)
       local counter=$((otp_counter+1))
       cmd="$OATH -b --hotp --counter=$counter"
-      [[ -n "$otp_digits" ]] && cmd+=" --digits=$otp_digits"
+      [[ -n $otp_digits ]] && cmd+=" --digits=$otp_digits"
       cmd+=" $otp_secret"
-      [[ -n "$OTPTOOL" ]] && cmd="$OTPTOOL $uri"
+      [[ -n $OTPTOOL ]] && cmd="$OTPTOOL $uri"
       ;;
 
     *)
@@ -368,12 +368,12 @@ cmd_otp_code() {
 
   local out; out=$($cmd) || die "$path: failed to generate OTP code."
 
-  if [[ "$otp_type" == "hotp" ]]; then
+  if [[ $otp_type == "hotp" ]]; then
     # Increment HOTP counter in-place
     local line replaced uri=${otp_uri/&counter=$otp_counter/&counter=$counter}
     while IFS= read -r line; do
-      [[ "$line" == otpauth://* ]] && line="$uri"
-      [[ -n "$replaced" ]] && replaced+=$'\n'
+      [[ $line == otpauth://* ]] && line=$uri
+      [[ -n $replaced ]] && replaced+=$'\n'
       replaced+="$line"
     done < <(echo "$contents")
 
@@ -389,7 +389,7 @@ cmd_otp_code() {
 
 cmd_otp_uri() {
   local contents qrcode=0 clip=0
-  opts="$($GETOPT -o cq -l clip,qrcode -n "$PROGRAM" -- "$@")"
+  opts=$($GETOPT -o cq -l clip,qrcode -n "$PROGRAM" -- "$@")
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
@@ -400,14 +400,14 @@ cmd_otp_uri() {
 
   [[ $err -ne 0 || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND uri [--clip,-c | --qrcode,-q] pass-name"
 
-  local path="$1"
+  local path=$1
   local passfile="$PREFIX/$path.gpg"
   check_sneaky_paths "$path"
   [[ ! -f $passfile ]] && die "Passfile not found"
 
   contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
   while read -r line; do
-    if [[ "$line" == otpauth://* ]]; then
+    if [[ $line == otpauth://* ]]; then
       otp_parse_uri "$line"
       break
     fi
@@ -426,7 +426,7 @@ cmd_otp_validate() {
   otp_parse_uri "$1"
 }
 
-case "$1" in
+case $1 in
   help|--help|-h) shift; cmd_otp_usage "$@" ;;
   version|--version) shift; cmd_otp_version "$@" ;;
   insert|add)     shift; cmd_otp_insert "$@" ;;
