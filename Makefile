@@ -19,7 +19,7 @@ install:
 	install -d "$(DESTDIR)$(SYSTEM_EXTENSION_DIR)/"
 	install -m0755 $(PROG).bash "$(DESTDIR)$(SYSTEM_EXTENSION_DIR)/$(PROG).bash"
 	install -d "$(DESTDIR)$(BASHCOMPDIR)/"
-	install -m 644 pass-otp.bash.completion  "$(DESTDIR)$(BASHCOMPDIR)/pass-otp"
+	install -m 644 pass-otp.bash.completion "$(DESTDIR)$(BASHCOMPDIR)/pass-otp"
 	@echo
 	@echo "pass-$(PROG) is installed successfully"
 	@echo
