@@ -1,7 +1,6 @@
 #!/usr/bin/env fish
 
 #TODO Do not suggest a second subcommand after a first one is used
-#TODO Do not suggest --clip on insert, append or validate
 #TODO Do not hard-code the path to the main pass completions
 #TODO Make sure the Makefile does not overwrite the main pass completions
 #TODO Make sure the default FISHCOMPDIR is in $fish_complete_path, and before the main pass completions' location
@@ -29,7 +28,7 @@ set -l PROG 'pass'
 
 # Add `otp` after `pass`. Defaults to `pass otp code`
 complete -c $PROG -f -n '__fish_pass_needs_command' -a otp -d 'Command: generate OTP code'
-complete -c $PROG -f -n '__fish_pass_uses_command otp' -s c -l clip -d 'Put OTP code in clipboard'
+complete -c $PROG -f -n '__fish_pass_uses_command otp; and not __fish_pass_uses_command otp insert; and not __fish_pass_uses_command otp append; and not __fish_pass_uses_command otp validate' -s c -l clip -d 'Put OTP code in clipboard'
 complete -c $PROG -f -n '__fish_pass_uses_command otp' -a "(__fish_pass_print_entries_and_dirs)"
 
 # Add `code` after `pass otp`
