@@ -49,7 +49,7 @@ otp_parse_uri() {
   uri="${uri//\`/%60}"
   uri="${uri//\"/%22}"
 
-  local pattern='^otpauth:\/\/(totp|hotp)(\/(([^:?]+)?(:([^:?]*))?))?\?(.+)$'
+  local pattern='^otpauth:\/\/(totp|hotp)(\/(([^:?]+(:[0-9]+)?)?(:([^:?]*(:[0-9]+)?))?))?\?(.+)$'
   [[ "$uri" =~ $pattern ]] || die "Cannot parse OTP key URI: $uri"
 
   otp_uri=${BASH_REMATCH[0]}
@@ -60,7 +60,7 @@ otp_parse_uri() {
   [[ -z $otp_accountname ]] && otp_accountname=$(urldecode "${BASH_REMATCH[4]}") || otp_issuer=$(urldecode "${BASH_REMATCH[4]}")
   [[ -z $otp_accountname ]] && die "Invalid key URI (missing accountname): $otp_uri"
 
-  local p=${BASH_REMATCH[7]}
+  local p=${BASH_REMATCH[9]}
   local params
   local IFS=\&; read -r -a params < <(echo "$p") ; unset IFS
 
