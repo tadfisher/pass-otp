@@ -35,6 +35,8 @@ lint:
 	$(MAKE) -C test lint
 
 test:
-	$(MAKE) -C test
+	$(MAKE) -C test all
 
-.PHONY: install uninstall lint test
+check: lint test
+
+.PHONY: install uninstall lint test check
