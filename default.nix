@@ -37,7 +37,7 @@ stdenv.mkDerivation {
   '';
 
   checkPhase = ''
-    make SHELL=$SHELL check
+    make check
   '';
 
   installFlags = [
