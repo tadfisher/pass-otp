@@ -65,4 +65,24 @@ EOF
   [[ $("$PASS" show passfile) == "$expected" ]]
 '
 
+test_expect_success 'Generates TOTP code for URI with port number' '
+  uri="otpauth://totp/Example:alice@domain.com:443?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+
+  test_pass_init &&
+  "$PASS" otp insert passfile <<< "$uri" &&
+  code=$("$PASS" otp passfile) &&
+  [[ ${#code} -eq 6 ]]
+'
+
+test_expect_success 'Generates HOTP code for URI with port number' '
+  uri="otpauth://hotp/Example:alice@google.com:443?secret=JBSWY3DPEHPK3PXP&counter=10&issuer=Example"
+  inc="otpauth://hotp/Example:alice@google.com:443?secret=JBSWY3DPEHPK3PXP&counter=11&issuer=Example"
+
+  test_pass_init &&
+  "$PASS" otp insert passfile <<< "$uri" &&
+  code=$("$PASS" otp passfile) &&
+  [[ ${#code} -eq 6 ]] &&
+  [[ $("$PASS" otp uri passfile) == "$inc" ]]
+'
+
 test_done
