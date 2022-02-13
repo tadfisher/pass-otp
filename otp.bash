@@ -389,7 +389,7 @@ cmd_otp_code() {
 
 cmd_otp_uri() {
   local contents qrcode=0 clip=0
-  opts="$($GETOPT -o q -l qrcode -n "$PROGRAM" -- "$@")"
+  opts="$($GETOPT -o cq -l clip,qrcode -n "$PROGRAM" -- "$@")"
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
