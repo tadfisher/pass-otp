@@ -334,7 +334,7 @@ cmd_otp_code() {
   [[ ! -f $passfile ]] && die "$path: passfile not found."
 
   contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
-  while read -r -a line; do
+  while read -r line; do
     if [[ "$line" == otpauth://* ]]; then
       local uri="$line"
       otp_parse_uri "$line"
@@ -406,7 +406,7 @@ cmd_otp_uri() {
   [[ ! -f $passfile ]] && die "Passfile not found"
 
   contents=$($GPG -d "${GPG_OPTS[@]}" "$passfile")
-  while read -r -a line; do
+  while read -r line; do
     if [[ "$line" == otpauth://* ]]; then
       otp_parse_uri "$line"
       break
