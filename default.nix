@@ -8,7 +8,6 @@
 , gnupg
 , pass
 , shellcheck
-, which
 }:
 
 stdenv.mkDerivation {
@@ -26,14 +25,13 @@ stdenv.mkDerivation {
     gnupg
     pass
     shellcheck
-    which
   ];
 
   dontBuild = true;
   doCheck = true;
 
   patchPhase = ''
-    sed -i -e 's|OATH=\$(which oathtool)|OATH=${oathToolkit}/bin/oathtool|' otp.bash
+    sed -i -e 's|OATH=\$(command -v oathtool)|OATH=${oathToolkit}/bin/oathtool|' otp.bash
   '';
 
   checkPhase = ''

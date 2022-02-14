@@ -42,16 +42,16 @@ export GIT_WORK_TREE="$PASSWORD_STORE_DIR"
 git config --global user.email "Pass-Automated-Testing-Suite@zx2c4.com"
 git config --global user.name "Pass Automated Testing Suite"
 
-PASS=$(which pass)
+PASS=$(command -v pass)
 [[ -e $PASS ]] || error "Could not find pass command"
 
-EXPECT=$(which expect)
+EXPECT=$(command -v expect)
 [[ -e $EXPECT ]] || error "Could not find expect command"
 
-OAUTHTOOL=$(which oathtool)
+OAUTHTOOL=$(command -v oathtool)
 [[ -e $OAUTHTOOL ]] || error "Could not find oathtool command"
 
-GPG=$(which gpg2) || GPG=$(which gpg)
+GPG=$(command -v gpg2) || GPG=$(command -v gpg)
 [[ -e $GPG ]] || error "Could not find gpg command"
 
 # Note: the assumption is the test key is unencrypted.
