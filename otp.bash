@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # []
 
-VERSION="1.1.2"
+VERSION="1.2.0"
 OATH=$(command -v oathtool)
 OTPTOOL=$(command -v otptool)
 
