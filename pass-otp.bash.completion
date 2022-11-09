@@ -24,3 +24,5 @@ __password_store_extension_complete_otp() {
       _pass_complete_entries 1
   fi
 }
+
+complete -o filenames -F __password_store_extension_complete_otp pass-otp
