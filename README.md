@@ -39,6 +39,13 @@ More information may be found in the pass-otp(1) man page.
 
 ## Examples
 
+Obtain the [otpauth uri](https://github.com/google/google-authenticator/wiki/Key-Uri-Format) from a QR Code using zbarimg. The uri will be used with pass-otp:
+``` console
+zbarimg ./path/to/my/qr-code-image.example-using-github.png
+QR-Code:otpauth://totp/GitHub:theusername?secret=S33KR3TP4SSW03RD&issuer=GitHub
+# otpauth://totp/GitHub:theusername?secret=S33KR3TP4SSW03RD&issuer=GitHub
+```
+
 Prompt for an OTP token, hiding input:
 
 ```
