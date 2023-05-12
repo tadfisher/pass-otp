@@ -314,7 +314,7 @@ cmd_otp_append() {
 }
 
 cmd_otp_code() {
-  [[ -z "$OATH" ]] && die "Failed to generate OTP code: oathtool is not installed."
+  [[ -z "$OATH" && -z "$OTPTOOL" ]] && die "Failed to generate OTP code: oathtool or otptool is not installed."
 
   local opts clip=0 quiet=0
   opts="$($GETOPT -o cq -l clip,quiet -n "$PROGRAM" -- "$@")"
