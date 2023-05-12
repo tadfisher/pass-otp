@@ -17,8 +17,8 @@
 # []
 
 VERSION="1.1.2"
-OATH=$(which oathtool)
-OTPTOOL=$(which otptool)
+OATH=$(command -v oathtool)
+OTPTOOL=$(command -v otptool)
 
 ## source:  https://gist.github.com/cdown/1163649
 urlencode() {
