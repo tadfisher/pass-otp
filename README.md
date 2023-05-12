@@ -162,7 +162,7 @@ apt install pass-extension-otp
 
 ### Fedora
 
-`pass-otp` is available in Fedora 28 and up, under the package name `pass-otp` according to [Fedora Apps](https://apps.fedoraproject.org/packages/pass-otp).
+`pass-otp` is available in Fedora 28 and up, under the package name `pass-otp` according to [Fedora Apps](https://packages.fedoraproject.org/pkgs/pass-otp/).
 
 ```
 dnf install pass-otp
@@ -183,7 +183,7 @@ with pkgs;
 pass.withExtensions (exts: [ exts.pass-otp ])
 ```
 
-The above can be installed imperatively via `nix-env` or ran in a temprorary
+The above can be installed imperatively via `nix-env` or ran in a temporary
 environment via `nix-shell`.
 
 ### macOS

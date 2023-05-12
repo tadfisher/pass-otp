@@ -13,12 +13,12 @@
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 # []
 
 VERSION="1.1.2"
-OATH=$(which oathtool)
-OTPTOOL=$(which otptool)
+OATH=$(command -v oathtool)
+OTPTOOL=$(command -v otptool)
 
 ## source:  https://gist.github.com/cdown/1163649
 urlencode() {
@@ -314,7 +314,7 @@ cmd_otp_append() {
 }
 
 cmd_otp_code() {
-  [[ -z "$OATH" ]] && die "Failed to generate OTP code: oathtool is not installed."
+  [[ -z "$OATH" && -z "$OTPTOOL" ]] && die "Failed to generate OTP code: oathtool or otptool is not installed."
 
   local opts clip=0 quiet=0
   opts="$($GETOPT -o cq -l clip,quiet -n "$PROGRAM" -- "$@")"
@@ -342,23 +342,40 @@ cmd_otp_code() {
     fi
   done < <(echo "$contents")
 
+  # Check oathtool for stdin secrets feature
+  OATH_SAFE_VERSION=2.6.5
+  OATH_VERSION=$("$OATH" --version | head -n1 | tr ' ' '\n' | tail -n1)
+  printf -v OATH_VERSIONS '%s\n%s' "$OATH_SAFE_VERSION" "$OATH_VERSION"
+  [[ "$OATH_VERSIONS" = "$(sort -n <<< "$OATH_VERSIONS")" ]] && OATH_SAFE=1
+
   local cmd
   case "$otp_type" in
     totp)
-      cmd="$OATH -b --totp"
-      [[ -n "$otp_algorithm" ]] && cmd+=$(echo "=${otp_algorithm}"|tr "[:upper:]" "[:lower:]")
-      [[ -n "$otp_period" ]] && cmd+=" --time-step-size=$otp_period"s
-      [[ -n "$otp_digits" ]] && cmd+=" --digits=$otp_digits"
-      cmd+=" $otp_secret"
-      [[ -n "$OTPTOOL" ]] && cmd="$OTPTOOL $uri"
+      cmd=("$OATH" --base32)
+      [[ -z "$otp_algorithm" ]] && cmd+=(--totp)
+      [[ -n "$otp_algorithm" ]] && cmd+=(--totp="$(echo "${otp_algorithm}"|tr "[:upper:]" "[:lower:]")")
+      [[ -n "$otp_period" ]] && cmd+=(--time-step-size="$otp_period"s)
+      [[ -n "$otp_digits" ]] && cmd+=(--digits="$otp_digits")
+      if [[ -n "$OATH_SAFE" ]] ; then
+        cmd+=(-) # secrets on stdin
+        unset OTPTOOL
+      else
+        cmd+=("$otp_secret")
+      fi
+      [[ -n "$OTPTOOL" ]] && cmd=("$OTPTOOL" "$uri")
       ;;
 
     hotp)
       local counter=$((otp_counter+1))
-      cmd="$OATH -b --hotp --counter=$counter"
-      [[ -n "$otp_digits" ]] && cmd+=" --digits=$otp_digits"
-      cmd+=" $otp_secret"
-      [[ -n "$OTPTOOL" ]] && cmd="$OTPTOOL $uri"
+      cmd=("$OATH" --base32 --hotp --counter="$counter")
+      [[ -n "$otp_digits" ]] && cmd+=(--digits="$otp_digits")
+      if [[ -n "$OATH_SAFE" ]] ; then
+        cmd+=(-) # secrets on stdin
+        unset OTPTOOL
+      else
+        cmd+=("$otp_secret")
+      fi
+      [[ -n "$OTPTOOL" ]] && cmd=("$OTPTOOL" "$uri")
       ;;
 
     *)
@@ -366,7 +383,12 @@ cmd_otp_code() {
       ;;
   esac
 
-  local out; out=$($cmd) || die "$path: failed to generate OTP code."
+  local out
+  if [[ -n "$OATH" && -n "$OATH_SAFE" && -z "$OTPTOOL" ]] ; then
+    out=$("${cmd[@]}" <<< "$otp_secret") || die "$path: failed to generate OTP code."
+  else
+    out=$("${cmd[@]}") || die "$path: failed to generate OTP code."
+  fi
 
   if [[ "$otp_type" == "hotp" ]]; then
     # Increment HOTP counter in-place
