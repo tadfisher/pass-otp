@@ -5,6 +5,7 @@ LIBDIR ?= $(PREFIX)/lib
 SYSTEM_EXTENSION_DIR ?= $(LIBDIR)/password-store/extensions
 MANDIR ?= $(PREFIX)/man
 BASHCOMPDIR ?= /etc/bash_completion.d
+FISHCOMPDIR ?= $(shell pkg-config --variable completionsdir fish || echo "/usr/share/fish/vendor_completions.d/")
 
 all:
 	@echo "pass-$(PROG) is a shell script and does not need compilation, it can be simply executed."
@@ -20,6 +21,8 @@ install:
 	install -m0755 $(PROG).bash "$(DESTDIR)$(SYSTEM_EXTENSION_DIR)/$(PROG).bash"
 	install -d "$(DESTDIR)$(BASHCOMPDIR)/"
 	install -m 644 pass-otp.bash.completion  "$(DESTDIR)$(BASHCOMPDIR)/pass-otp"
+	install -d "$(DESTDIR)$(FISHCOMPDIR)/"
+	install -m 644 pass-otp.fish.completion  "$(DESTDIR)$(FISHCOMPDIR)/pass-otp.fish"
 	@echo
 	@echo "pass-$(PROG) is installed succesfully"
 	@echo
