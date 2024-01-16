@@ -370,7 +370,7 @@ cmd_otp_code() {
 
   if [[ "$otp_type" == "hotp" ]]; then
     # Increment HOTP counter in-place
-    local line replaced uri=${otp_uri/&counter=$otp_counter/&counter=$counter}
+    local line replaced uri=${otp_uri/&counter=$otp_counter/\&counter=$counter}
     while IFS= read -r line; do
       [[ "$line" == otpauth://* ]] && line="$uri"
       [[ -n "$replaced" ]] && replaced+=$'\n'
