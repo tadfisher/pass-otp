@@ -14,7 +14,7 @@ Version 1.1.1 *(2018-06-28)*
 
 This is mainly a bugfix release.
 
- * Numerous build and test infrstructure updates. (thanks @LucidOne)
+ * Numerous build and test infrastructure updates. (thanks @LucidOne)
  * `insert` and `append` now require only one of "issuer" or "account",
    matching the documentation. (thanks @sudoforge and @xPMo)
  * `append` now displays the passfile in its prompt. (thanks @sudoforge)

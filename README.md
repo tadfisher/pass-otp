@@ -183,7 +183,7 @@ with pkgs;
 pass.withExtensions (exts: [ exts.pass-otp ])
 ```
 
-The above can be installed imperatively via `nix-env` or ran in a temprorary
+The above can be installed imperatively via `nix-env` or ran in a temporary
 environment via `nix-shell`.
 
 ### macOS
