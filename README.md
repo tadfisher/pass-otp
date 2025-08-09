@@ -157,12 +157,12 @@ pacman -S pass-otp
 `pass-otp` is available in `buster` and `sid` repositories with the package-name `pass-extension-otp` according to [tracker](https://tracker.debian.org/pkg/pass-otp):
 
 ```
-apt install pass-extension-otp
+apt install pass-otp
 ```
 
 ### Fedora
 
-`pass-otp` is available in Fedora 28 and up, under the package name `pass-otp` according to [Fedora Apps](https://apps.fedoraproject.org/packages/pass-otp).
+`pass-otp` is available in Fedora 28 and up, under the package name `pass-otp` according to [Fedora Apps](https://packages.fedoraproject.org/pkgs/pass-otp/).
 
 ```
 dnf install pass-otp

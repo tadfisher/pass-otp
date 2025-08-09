@@ -21,7 +21,7 @@ install:
 	install -d "$(DESTDIR)$(BASHCOMPDIR)/"
 	install -m 644 pass-otp.bash.completion  "$(DESTDIR)$(BASHCOMPDIR)/pass-otp"
 	@echo
-	@echo "pass-$(PROG) is installed succesfully"
+	@echo "pass-$(PROG) is installed successfully"
 	@echo
 
 uninstall:
