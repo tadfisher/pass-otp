@@ -22,36 +22,36 @@ failed=0
 broken=0
 total=0
 
-while read file; do
-	while read type value; do
+while read -r file; do
+	while read -r type value; do
 		case $type in
 		'')
 			continue ;;
 		fixed)
-			fixed=$(($fixed + $value)) ;;
+			fixed=$((fixed + value)) ;;
 		success)
-			success=$(($success + $value)) ;;
+			success=$((success + value)) ;;
 		failed)
-			failed=$(($failed + $value))
-			if test $value != 0; then
+			failed=$((failed + value))
+			if test "$value" != 0; then
 				test_name=$(expr "$file" : 'test-results/\(.*\)\.[0-9]*\.counts')
 				failed_tests="$failed_tests $test_name"
 			fi
 			;;
 		broken)
-			broken=$(($broken + $value)) ;;
+			broken=$((broken + value)) ;;
 		total)
-			total=$(($total + $value)) ;;
+			total=$((total + value)) ;;
 		esac
 	done <"$file"
 done
 
 if test -n "$failed_tests"; then
-	printf "\nfailed test(s):$failed_tests\n\n"
+	printf '\nfailed test(s):%s\n\n' "$failed_tests"
 fi
 
-printf "%-8s%d\n" fixed $fixed
-printf "%-8s%d\n" success $success
-printf "%-8s%d\n" failed $failed
-printf "%-8s%d\n" broken $broken
-printf "%-8s%d\n" total $total
+printf '%-8s%d\n' fixed $fixed
+printf '%-8s%d\n' success $success
+printf '%-8s%d\n' failed $failed
+printf '%-8s%d\n' broken $broken
+printf '%-8s%d\n' total $total

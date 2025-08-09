@@ -157,4 +157,12 @@ test_expect_success 'Allow multiple levels in path prefix' '
   echo [[ $("$PASS" show totp/pass-test/Example/alice@google.com) == "$uri" ]]
 '
 
+test_expect_success 'Insert TOTP URI with port number' '
+  uri="otpauth://totp/Example:alice@google.com:443?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+
+  test_pass_init &&
+  "$PASS" otp insert passfile <<< "$uri" &&
+  [[ $("$PASS" show passfile) == "$uri" ]]
+'
+
 test_done

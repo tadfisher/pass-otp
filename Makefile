@@ -21,7 +21,7 @@ install:
 	install -d "$(DESTDIR)$(BASHCOMPDIR)/"
 	install -m 644 pass-otp.bash.completion  "$(DESTDIR)$(BASHCOMPDIR)/pass-otp"
 	@echo
-	@echo "pass-$(PROG) is installed succesfully"
+	@echo "pass-$(PROG) is installed successfully"
 	@echo
 
 uninstall:
@@ -35,6 +35,8 @@ lint:
 	$(MAKE) -C test lint
 
 test:
-	$(MAKE) -C test
+	$(MAKE) -C test all
 
-.PHONY: install uninstall lint test
+check: lint test
+
+.PHONY: install uninstall lint test check

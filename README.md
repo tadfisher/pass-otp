@@ -1,4 +1,3 @@
-
 | Branch | Status |
 |--------|--------|
 | [**master**](https://github.com/tadfisher/pass-otp/tree/master) | [![Build Status: master](https://travis-ci.org/tadfisher/pass-otp.svg?branch=master)](https://travis-ci.org/tadfisher/pass-otp) |
@@ -61,7 +60,7 @@ Pipe an `otpauth://` URI into a passfile:
 $ pass otp insert totp-secret < totp-secret.txt
 ```
 
-Use [zbar](http://zbar.sourceforge.net/) to decode a QR image or webcam shot into a passfile:
+Use [zbar](https://github.com/mchehab/zbar) to decode a QR image or webcam shot into a passfile:
 
 ```
 $ zbarimg -q --raw qrcode.png | pass otp insert totp-secret
@@ -79,11 +78,12 @@ The same, but appending to an existing passfile:
 $ zbarimg -q --raw google-qrcode.png | pass otp append google/example@gmail.com
 ```
 
-By throwing [maim](https://github.com/naelstrof/maim) into the mix, you can even
-create a passfile directly from a QR code displayed on screen, by selecting it:
+If you have a clipboard management console tool such as `wl-clipboard` for
+Wayland installed, you can also select "Copy Image" in your favorite browser
+and run:
 
 ```
-$ maim -sk | zbarimg -q --raw - | pass otp insert totp-secret
+$ wl-paste | zbarimg -q --raw - | pass otp append google/example@gmail.com
 ```
 
 Generate a 2FA code using this token:
@@ -128,6 +128,22 @@ cd pass-otp
 sudo make install
 ```
 
+or, to install in the user dir (following the standard XDG base directory paths):
+
+```
+$ echo $XDG_DATA_HOME
+/home/$USER/.local/share
+
+$ export PASSWORD_STORE_ENABLE_EXTENSIONS=true
+$ export PASSWORD_STORE_EXTENSIONS_DIR=$XDG_DATA_HOME/password-store/.extensions
+$ export BASH_COMPLETION_USER_DIR=$XDG_DATA_HOME/bash-completion/completions
+
+$ PREFIX=$XDG_DATA_HOME \
+    LIBDIR=$PREFIX \
+    BASHCOMPDIR=$BASH_COMPLETION_USER_DIR \
+    make install
+```
+
 ### Arch Linux
 
 `pass-otp` is available in the `[community]` repository:
@@ -141,12 +157,12 @@ pacman -S pass-otp
 `pass-otp` is available in `buster` and `sid` repositories with the package-name `pass-extension-otp` according to [tracker](https://tracker.debian.org/pkg/pass-otp):
 
 ```
-apt install pass-extension-otp
+apt install pass-otp
 ```
 
 ### Fedora
 
-`pass-otp` is available in Fedora 28 and up, under the package name `pass-otp` according to [Fedora Apps](https://apps.fedoraproject.org/packages/pass-otp).
+`pass-otp` is available in Fedora 28 and up, under the package name `pass-otp` according to [Fedora Apps](https://packages.fedoraproject.org/pkgs/pass-otp/).
 
 ```
 dnf install pass-otp
@@ -167,7 +183,7 @@ with pkgs;
 pass.withExtensions (exts: [ exts.pass-otp ])
 ```
 
-The above can be installed imperatively via `nix-env` or ran in a temprorary
+The above can be installed imperatively via `nix-env` or ran in a temporary
 environment via `nix-shell`.
 
 ### macOS
