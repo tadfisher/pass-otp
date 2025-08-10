@@ -1,0 +1,7 @@
+#!/usr/bin/env fish
+
+source "/usr/share/fish/vendor_completions.d/pass.fish"
+
+complete -c pass -f -n '__fish_pass_needs_command' -a otp -d 'Command: Generate an OTP code'
+complete -c pass -f -n '__fish_pass_uses_command otp' -s c -l clip -d 'Put otp code in clipboard'
+complete -c pass -f -n '__fish_pass_uses_command otp' -a "(__fish_pass_print_entries)"
