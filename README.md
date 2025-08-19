@@ -85,6 +85,7 @@ and run:
 ```
 $ wl-paste | zbarimg -q --raw - | pass otp append google/example@gmail.com
 ```
+Instead of `wl-paste` you can use `pngpaste -` on MacOS
 
 Generate a 2FA code using this token:
 
