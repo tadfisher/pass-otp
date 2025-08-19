@@ -1,4 +1,4 @@
-.TH PASS-OTP 1 "2017 March 19" "Password store OTP extension"
+.TH PASS-OTP 1 "2023 September 21" "Password store OTP extension"
 
 .SH NAME
 pass-otp - A \fBpass\fP(1) extension for managing one-time-password (OTP) tokens.
@@ -112,6 +112,32 @@ information about this format, see the documentation at
 .TP
 \fBhelp\fP, \fB\-h\fP, \fB\-\-help\fP
 Show usage message.
+
+.SH EXAMPLES
+
+.TP
+.B Insert new OTP seed
+$ pass otp insert totp-secret
+.br
+For totp the secret will be in the format: otpauth://totp/totp-secret?secret=AAAAAAAAAAA&issuer=totp-secret
+.TP
+.B To use your webcam to scan a QR code
+$ zbarcam -q --raw | pass otp insert totp-secret
+.TP
+.B To use your webcam to append to an existing passfile
+$ zbarimg -q --raw google-qrcode.png | pass otp append google/example@gmail.com
+.br
+If you have a clipboard management console tool such as `wl-clipboard` for
+Wayland installed, you can also select "Copy Image" in your favorite browser
+and run
+.br
+$ wl-paste | zbarimg -q --raw - | pass otp append google/example@gmail.com
+.TP
+.B Generate a 2FA code using seed
+$ pass otp totp-secret
+.TP
+.B Display a QR code for an OTP token:
+$ pass otp uri -q totp-secret
 
 .SH SEE ALSO
 .BR pass (1),
