@@ -48,7 +48,6 @@ urldecode() {
 
 # Parse a Key URI per: https://github.com/google/google-authenticator/wiki/Key-Uri-Format
 # Vars are consumed by caller
-# shellcheck disable=SC2034
 otp_parse_uri() {
   local uri="$1"
 
@@ -60,11 +59,20 @@ otp_parse_uri() {
 
   otp_uri=${BASH_REMATCH[0]}
   otp_type=${BASH_REMATCH[1]}
+  # shellcheck disable=SC2034
   otp_label=${BASH_REMATCH[3]}
 
   otp_accountname=$(urldecode "${BASH_REMATCH[6]}")
   [[ -z $otp_accountname ]] && otp_accountname=$(urldecode "${BASH_REMATCH[4]}") || otp_issuer=$(urldecode "${BASH_REMATCH[4]}")
-  [[ -z $otp_accountname ]] && die "Invalid key URI (missing accountname): $otp_uri"
+  if [[ -z $otp_accountname ]]; then
+    # Using sub-shell here to only apply extglob to this pattern and not change
+    # the behaviour of other parantheses in this script
+    redacted_otp_uri=$(
+      shopt -s extglob
+      echo "${otp_uri//secret=+([^&])/secret=REDACTED}"
+    )
+    die "Invalid key URI (missing accountname): $redacted_otp_uri"
+  fi
 
   local p=${BASH_REMATCH[9]}
   local params
