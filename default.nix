@@ -8,6 +8,7 @@
 , gnupg
 , pass
 , shellcheck
+, which
 }:
 
 stdenv.mkDerivation {
