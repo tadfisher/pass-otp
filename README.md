@@ -144,6 +144,12 @@ $ PREFIX=$XDG_DATA_HOME \
     make install
 ```
 
+To use with [passage](https://github.com/FiloSottile/passage), set the variable `SYSTEM_EXTENSION_DIR` to one of passage’s extensions directories (by default `$HOME/.passage/extensions` and `/usr/lib/passage/extensions`) when installing:
+
+```
+SYSTEM_EXTENSION_DIR=/usr/lib/passage/extensions sudo make install
+```
+
 ### Arch Linux
 
 `pass-otp` is available in the `[community]` repository:
