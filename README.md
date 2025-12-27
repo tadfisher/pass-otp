@@ -282,3 +282,11 @@ mantra. Please think it through before running this migration.
 
 If you read the warning paragraph above, [keep calm and move on with the
 migration](https://github.com/tadfisher/pass-otp/wiki/How-to-migrate-your-Google-Authenticator-database-to-pass-otp%3F).
+
+## Migrating from Aegis Authenticator
+
+Use `aegis2pass` from [select-pass-otp](https://github.com/Konfekt/select-pass-otp).
+
+## Pasting Secrets
+
+If you use the `rofi` or `dmenu` selector, `select-secret.sh` from [select-pass-otp](https://github.com/Konfekt/select-pass-otp) provides a menu to paste or copy any password or OTP.
