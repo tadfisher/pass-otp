@@ -144,7 +144,7 @@ $ PREFIX=$XDG_DATA_HOME \
     make install
 ```
 
-To use with [passage](https://github.com/FiloSottile/passage), set the variable `SYSTEM_EXTENSION_DIR` to one of passage’s extensions directories (by default `$HOME/.passage/extensions` and `/usr/lib/passage/extensions`) when installing:
+To use with [passage](https://github.com/FiloSottile/passage), set the variable `SYSTEM_EXTENSION_DIR` to one of passage’s extensions directories (by default `$HOME/.local/share/passage/extensions` and `/usr/lib/passage/extensions`) when installing:
 
 ```
 sudo make install SYSTEM_EXTENSION_DIR=/usr/lib/passage/extensions
