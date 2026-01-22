@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see https://www.gnu.org/licenses/ .
 
-SHELL ?= /bin/bash
-SHELL_PATH ?= $(SHELL)
-SHELL_PATH_SQ = $(subst ','\'',$(SHELL_PATH))
+BASH ?= /bin/bash
+BASH_PATH ?= $(BASH)
+BASH_PATH_SQ = $(subst ','\'',$(BASH_PATH))
 RM ?= rm -f
 PROVE ?= prove
 AGGREGATE_SCRIPT ?= aggregate-results.sh
@@ -36,11 +36,11 @@ test: pre-clean
 	$(MAKE) aggregate-results-and-cleanup
 
 prove: pre-clean
-	@echo "*** prove ***"; $(PROVE) --exec '$(SHELL_PATH_SQ)' $(PROVE_OPTS) $(T) :: $(TEST_OPTS)
+	@echo "*** prove ***"; $(PROVE) --exec '$(BASH_PATH_SQ)' $(PROVE_OPTS) $(T) :: $(TEST_OPTS)
 	$(MAKE) clean-except-prove-cache
 
 $(T):
-	@echo "*** $@ ***"; '$(SHELL_PATH_SQ)' $@ $(TEST_OPTS)
+	@echo "*** $@ ***"; '$(BASH_PATH_SQ)' $@ $(TEST_OPTS)
 
 pre-clean:
 	$(RM) -r test-results
@@ -59,7 +59,7 @@ aggregate-results-and-cleanup:
 aggregate-results: $(T)
 	for f in test-results/*.counts; do \
 		echo "$$f"; \
-	done | '$(SHELL_PATH_SQ)' '$(AGGREGATE_SCRIPT)'
+	done | '$(BASH_PATH_SQ)' '$(AGGREGATE_SCRIPT)'
 
 lint:
 	shellcheck -s bash setup.sh
