@@ -362,10 +362,12 @@ cmd_otp_code() {
   done < <(echo "$contents")
 
   # Check oathtool for stdin secrets feature
-  OATH_SAFE_VERSION=2.6.5
-  OATH_VERSION=$("$OATH" --version | head -n1 | tr ' ' '\n' | tail -n1)
-  printf -v OATH_VERSIONS '%s\n%s' "$OATH_SAFE_VERSION" "$OATH_VERSION"
-  [[ "$OATH_VERSIONS" = "$(sort -n <<< "$OATH_VERSIONS")" ]] && OATH_SAFE=1
+  if [[ -n "$OATH" ]]; then
+    OATH_SAFE_VERSION=2.6.5
+    OATH_VERSION=$("$OATH" --version | head -n1 | tr ' ' '\n' | tail -n1)
+    printf -v OATH_VERSIONS '%s\n%s' "$OATH_SAFE_VERSION" "$OATH_VERSION"
+    [[ "$OATH_VERSIONS" = "$(sort -n <<< "$OATH_VERSIONS")" ]] && OATH_SAFE=1
+  fi
 
   local cmd
   case "$otp_type" in
