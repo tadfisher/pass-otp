@@ -56,7 +56,7 @@ otp_parse_uri() {
   uri="${uri//\"/%22}"
 
   local pattern='^otpauth:\/\/(totp|hotp)(\/(([^:?]+)?(:([^:?]*))?)(:([0-9]+))?)?\?(.+)$'
-  [[ "$uri" =~ $pattern ]] || die "Cannot parse OTP key URI: $uri"
+  [[ "$uri" =~ $pattern ]] || die "Cannot parse OTP key URI"
 
   otp_uri=${BASH_REMATCH[0]}
   otp_type=${BASH_REMATCH[1]}
@@ -64,7 +64,7 @@ otp_parse_uri() {
 
   otp_accountname=$(urldecode "${BASH_REMATCH[6]}")
   [[ -z $otp_accountname ]] && otp_accountname=$(urldecode "${BASH_REMATCH[4]}") || otp_issuer=$(urldecode "${BASH_REMATCH[4]}")
-  [[ -z $otp_accountname ]] && die "Invalid key URI (missing accountname): $otp_uri"
+  [[ -z $otp_accountname ]] && die "Invalid key URI (missing accountname)"
 
   local p=${BASH_REMATCH[9]}
   local params
@@ -85,10 +85,10 @@ otp_parse_uri() {
     fi
   done
 
-  [[ -z "$otp_secret" ]] && die "Invalid key URI (missing secret): $otp_uri"
+  [[ -z "$otp_secret" ]] && die "Invalid key URI (missing secret)"
 
   pattern='^[0-9]+$'
-  [[ "$otp_type" == 'hotp' ]] && [[ ! "$otp_counter" =~ $pattern ]] && die "Invalid key URI (missing counter): $otp_uri"
+  [[ "$otp_type" == 'hotp' ]] && [[ ! "$otp_counter" =~ $pattern ]] && die "Invalid key URI (missing counter)"
 }
 
 otp_read_uri() {
