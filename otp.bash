@@ -367,14 +367,14 @@ cmd_otp_code() {
       [[ -n "$otp_algorithm" ]] && cmd+=(--totp="$(echo "${otp_algorithm}"|tr "[:upper:]" "[:lower:]")")
       [[ -n "$otp_period" ]] && cmd+=(--time-step-size="$otp_period"s)
       [[ -n "$otp_digits" ]] && cmd+=(--digits="$otp_digits")
-      cmd+=("$otp_secret")
+      cmd+=("-")
       ;;
 
     hotp)
       local counter=$((otp_counter+1))
       cmd=("$OATH" --base32 --hotp --counter="$counter")
       [[ -n "$otp_digits" ]] && cmd+=(--digits="$otp_digits")
-      cmd+=("$otp_secret")
+      cmd+=("-")
       ;;
 
     *)
@@ -382,7 +382,7 @@ cmd_otp_code() {
       ;;
   esac
 
-  local out; out=$("${cmd[@]}") || die "$path: failed to generate OTP code."
+  local out; out=$("${cmd[@]}" <<< "${otp_secret}") || die "$path: failed to generate OTP code."
 
   if [[ "$otp_type" == "hotp" ]]; then
     # Increment HOTP counter in-place
