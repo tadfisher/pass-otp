@@ -18,7 +18,6 @@
 
 VERSION="1.1.2"
 OATH=$(command -v oathtool)
-OTPTOOL=$(command -v otptool)
 
 if [[ $PASSAGE == 1 ]]; then
   EXT="age"
@@ -329,7 +328,7 @@ cmd_otp_append() {
 }
 
 cmd_otp_code() {
-  [[ -z "$OATH" && -z "$OTPTOOL" ]] && die "Failed to generate OTP code: oathtool or otptool is not installed."
+  [[ -z "$OATH" ]] && die "Failed to generate OTP code: oathtool is not installed."
 
   local opts clip=0 quiet=0
   opts="$($GETOPT -o cq -l clip,quiet -n "$PROGRAM" -- "$@")"
@@ -355,17 +354,10 @@ cmd_otp_code() {
   fi
   while read -r line; do
     if [[ "$line" == otpauth://* ]]; then
-      local uri="$line"
       otp_parse_uri "$line"
       break
     fi
   done < <(echo "$contents")
-
-  # Check oathtool for stdin secrets feature
-  OATH_SAFE_VERSION=2.6.5
-  OATH_VERSION=$("$OATH" --version | head -n1 | tr ' ' '\n' | tail -n1)
-  printf -v OATH_VERSIONS '%s\n%s' "$OATH_SAFE_VERSION" "$OATH_VERSION"
-  [[ "$OATH_VERSIONS" = "$(sort -n <<< "$OATH_VERSIONS")" ]] && OATH_SAFE=1
 
   local cmd
   case "$otp_type" in
@@ -375,26 +367,14 @@ cmd_otp_code() {
       [[ -n "$otp_algorithm" ]] && cmd+=(--totp="$(echo "${otp_algorithm}"|tr "[:upper:]" "[:lower:]")")
       [[ -n "$otp_period" ]] && cmd+=(--time-step-size="$otp_period"s)
       [[ -n "$otp_digits" ]] && cmd+=(--digits="$otp_digits")
-      if [[ -n "$OATH_SAFE" ]] ; then
-        cmd+=(-) # secrets on stdin
-        unset OTPTOOL
-      else
-        cmd+=("$otp_secret")
-      fi
-      [[ -n "$OTPTOOL" ]] && cmd=("$OTPTOOL" "$uri")
+      cmd+=("-")
       ;;
 
     hotp)
       local counter=$((otp_counter+1))
       cmd=("$OATH" --base32 --hotp --counter="$counter")
       [[ -n "$otp_digits" ]] && cmd+=(--digits="$otp_digits")
-      if [[ -n "$OATH_SAFE" ]] ; then
-        cmd+=(-) # secrets on stdin
-        unset OTPTOOL
-      else
-        cmd+=("$otp_secret")
-      fi
-      [[ -n "$OTPTOOL" ]] && cmd=("$OTPTOOL" "$uri")
+      cmd+=("-")
       ;;
 
     *)
@@ -402,12 +382,7 @@ cmd_otp_code() {
       ;;
   esac
 
-  local out
-  if [[ -n "$OATH" && -n "$OATH_SAFE" && -z "$OTPTOOL" ]] ; then
-    out=$("${cmd[@]}" <<< "$otp_secret") || die "$path: failed to generate OTP code."
-  else
-    out=$("${cmd[@]}") || die "$path: failed to generate OTP code."
-  fi
+  local out; out=$("${cmd[@]}" <<< "${otp_secret}") || die "$path: failed to generate OTP code."
 
   if [[ "$otp_type" == "hotp" ]]; then
     # Increment HOTP counter in-place
