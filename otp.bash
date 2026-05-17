@@ -18,7 +18,6 @@
 
 VERSION="1.1.2"
 OATH=$(command -v oathtool)
-OTPTOOL=$(command -v otptool)
 
 if [[ $PASSAGE == 1 ]]; then
   EXT="age"
@@ -355,7 +354,6 @@ cmd_otp_code() {
   fi
   while read -r line; do
     if [[ "$line" == otpauth://* ]]; then
-      local uri="$line"
       otp_parse_uri "$line"
       break
     fi
@@ -370,7 +368,6 @@ cmd_otp_code() {
       [[ -n "$otp_period" ]] && cmd+=(--time-step-size="$otp_period"s)
       [[ -n "$otp_digits" ]] && cmd+=(--digits="$otp_digits")
       cmd+=("$otp_secret")
-      [[ -n "$OTPTOOL" ]] && cmd=("$OTPTOOL" "$uri")
       ;;
 
     hotp)
@@ -378,7 +375,6 @@ cmd_otp_code() {
       cmd=("$OATH" --base32 --hotp --counter="$counter")
       [[ -n "$otp_digits" ]] && cmd+=(--digits="$otp_digits")
       cmd+=("$otp_secret")
-      [[ -n "$OTPTOOL" ]] && cmd=("$OTPTOOL" "$uri")
       ;;
 
     *)
