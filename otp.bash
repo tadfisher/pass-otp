@@ -74,7 +74,7 @@ otp_parse_uri() {
   for param in "${params[@]}"; do
     if [[ "$param" =~ $pattern ]]; then
       case ${BASH_REMATCH[1]} in
-        secret) otp_secret=${BASH_REMATCH[2]} ;;
+        secret) otp_secret=$(urldecode "${BASH_REMATCH[2]}") ;;
         digits) otp_digits=${BASH_REMATCH[2]} ;;
         algorithm) otp_algorithm=${BASH_REMATCH[2]} ;;
         period) otp_period=${BASH_REMATCH[2]} ;;
