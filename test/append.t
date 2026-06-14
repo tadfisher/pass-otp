@@ -70,6 +70,28 @@ EOD
   [[ $("$PASS" otp uri passfile) == "$uri" ]]
 '
 
+test_expect_success 'Insert secret containing lowercase letters and spaces' '
+  existing="foo bar baz"
+  secret="jbsw y3dp ehpk 3pxp"
+  uri="otpauth://totp/Example:alice%40google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+
+  test_pass_init &&
+  "$PASS" insert -e passfile <<< "$existing" &&
+  {
+    expect <<EOD
+      spawn "$PASS" otp append -s -i Example -a alice@google.com -e passfile
+      expect {
+        "Enter" {
+          send "$secret\r"
+          exp_continue
+        }
+        eof
+      }
+EOD
+  } &&
+  [[ $("$PASS" otp uri passfile) == "$uri" ]]
+'
+
 test_expect_success 'Prompts before overwriting key URI' '
   existing="foo bar baz"
   uri1="otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Foo"
